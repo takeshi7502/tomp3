@@ -15,7 +15,7 @@
             const url = document.getElementById('url').value.trim();
             if (!url) return alert('Vui lòng nhập link YouTube');
 
-            const res = await fetch('http://194.233.76.15:3000/download', {
+            const res = await fetch('http:///api.takeshi.dev:3000/download', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
