@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Youtube to MP3</title>
+</head>
+<body>
+    <h1>Chuyển YouTube thành MP3</h1>
+    <input type="text" id="url" placeholder="Nhập link YouTube...">
+    <button onclick="download()">Tải về</button>
+    <div id="result"></div>
+
+    <script>
+        async function download() {
+            const url = document.getElementById('url').value.trim();
+            if (!url) return alert('Vui lòng nhập link YouTube');
+
+            const res = await fetch('http://194.233.76.15:3000/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('result').innerHTML = `
+                    <a href="http://YOUR_VPS_IP:3000${data.downloadLink}" download>Tải MP3 tại đây</a>
+                `;
+            } else {
+                alert('Tải thất bại. Kiểm tra lại link!');
+            }
+        }
+    </script>
+</body>
+</html>
