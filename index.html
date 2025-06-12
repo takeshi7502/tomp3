@@ -1,29 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube to MP3</title>
+  <title>YT to MP3 | Tải nhạc từ YouTube</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #2c3e50, #4ca1af);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      width: 90%;
+      border: none;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #2ecc71;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    a {
+      color: #f1c40f;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <h2>Chuyển YouTube thành MP3</h2>
-  <input id="url" placeholder="Nhập link YouTube" size="50">
-  <button onclick="download()">Tải về</button>
-  <div id="result"></div>
+  <div class="container">
+    <h1>🎵 YouTube to MP3</h1>
+    <p>Nhập link video YouTube để tải MP3 chất lượng cao.</p>
+    <input type="text" id="url" placeholder="Dán link YouTube vào đây">
+    <br>
+    <button onclick="download()">Tải về</button>
+    <div id="result"></div>
+  </div>
 
   <script>
     async function download() {
-      const url = document.getElementById('url').value;
-      const res = await fetch('https://api.takeshi.dev/download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      });
+      const url = document.getElementById('url').value.trim();
+      const resultBox = document.getElementById('result');
+      if (!url) return resultBox.innerHTML = '❗ Vui lòng nhập link YouTube';
 
-      if (!res.ok) return alert('Tải thất bại');
-      const data = await res.json();
-      document.getElementById('result').innerHTML = `
-        <a href="https://api.takeshi.dev${data.downloadLink}" download>Tải MP3 tại đây</a>
-      `;
+      resultBox.innerHTML = '⏳ Đang xử lý...';
+
+      try {
+        const res = await fetch('https://api.takeshi.dev/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (!res.ok) return resultBox.innerHTML = '❌ Không thể tải file. Link có thể không hợp lệ.';
+
+        const data = await res.json();
+        resultBox.innerHTML = `
+          ✅ Xử lý xong! <br>
+          <a href="https://api.takeshi.dev${data.downloadLink}" download>Nhấn vào đây để tải MP3</a>
+        `;
+      } catch (err) {
+        resultBox.innerHTML = '⚠️ Có lỗi xảy ra khi kết nối server.';
+      }
     }
   </script>
 </body>
