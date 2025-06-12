@@ -1,35 +1,30 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Youtube to MP3</title>
+  <meta charset="UTF-8">
+  <title>YouTube to MP3</title>
 </head>
 <body>
-    <h1>Chuyển YouTube thành MP3</h1>
-    <input type="text" id="url" placeholder="Nhập link YouTube...">
-    <button onclick="download()">Tải về</button>
-    <div id="result"></div>
+  <h2>Chuyển YouTube thành MP3</h2>
+  <input id="url" placeholder="Nhập link YouTube" size="50">
+  <button onclick="download()">Tải về</button>
+  <div id="result"></div>
 
-    <script>
-        async function download() {
-            const url = document.getElementById('url').value.trim();
-            if (!url) return alert('Vui lòng nhập link YouTube');
+  <script>
+    async function download() {
+      const url = document.getElementById('url').value;
+      const res = await fetch('https://api.takeshi.dev/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
 
-            const res = await fetch('http:///api.takeshi.dev:3000/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                document.getElementById('result').innerHTML = `
-                    <a href="http://194.233.76.15:3000${data.downloadLink}" download>Tải MP3 tại đây</a>
-                `;
-            } else {
-                alert('Tải thất bại. Kiểm tra lại link!');
-            }
-        }
-    </script>
+      if (!res.ok) return alert('Tải thất bại');
+      const data = await res.json();
+      document.getElementById('result').innerHTML = `
+        <a href="https://api.takeshi.dev${data.downloadLink}" download>Tải MP3 tại đây</a>
+      `;
+    }
+  </script>
 </body>
 </html>
