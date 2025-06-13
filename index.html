@@ -2,32 +2,23 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>YT to MP3 | Tải nhạc từ YouTube</title>
+  <title>YouTube to MP3</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #2c3e50, #4ca1af);
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+      padding: 30px;
+      text-align: center;
     }
 
     .container {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.4);
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      text-align: center;
       width: 100%;
-      max-width: 500px;
-    }
-
-    h1 {
-      margin-bottom: 20px;
+      max-width: 600px;
+      margin: auto;
     }
 
     input[type="text"] {
@@ -35,7 +26,6 @@
       width: 90%;
       border: none;
       border-radius: 6px;
-      margin-bottom: 15px;
       font-size: 16px;
     }
 
@@ -47,42 +37,107 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
-      transition: background 0.3s;
+      margin-top: 10px;
     }
 
     button:hover {
       background-color: #2ecc71;
     }
 
-    #result {
-      margin-top: 20px;
-      font-size: 16px;
+    .task {
+      background: rgba(255, 255, 255, 0.1);
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: left;
+      position: relative;
     }
 
-    a {
-      color: #f1c40f;
+    .progress {
+      height: 8px;
+      background: #444;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #f1c40f;
+      transition: width 0.4s;
+    }
+
+    .cancel-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: transparent;
+      border: none;
+      color: #e74c3c;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    a.download-link {
+      color: #00ffcc;
       text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🎵 YouTube to MP3</h1>
-    <p>Nhập link video YouTube để tải MP3 chất lượng cao.</p>
-    <input type="text" id="url" placeholder="Dán link YouTube vào đây">
+    <p>Nhập link YouTube để tải MP3 (tối đa 5 task).</p>
+    <input type="text" id="url" placeholder="Dán link video YouTube...">
     <br>
-    <button onclick="download()">Tải về</button>
-    <div id="result"></div>
+    <button onclick="addTask()">Tải về</button>
+    <div id="taskList"></div>
   </div>
 
   <script>
-    async function download() {
-      const url = document.getElementById('url').value.trim();
-      const resultBox = document.getElementById('result');
-      if (!url) return resultBox.innerHTML = '❗ Vui lòng nhập link YouTube';
+    let tasks = [];
 
-      resultBox.innerHTML = '⏳ Đang xử lý...';
+    function updateUI() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const div = document.createElement('div');
+        div.className = 'task';
+        div.innerHTML = `
+          <div><strong>Task ${index + 1}</strong>: ${task.url}</div>
+          <div>${task.status}</div>
+          <div class="progress"><div class="progress-bar" style="width: ${task.progress}%"></div></div>
+          ${task.link ? `<div><a class="download-link" href="${task.link}" download>🎧 Tải MP3</a></div>` : ''}
+          <button class="cancel-btn" onclick="cancelTask(${index})">❌</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function cancelTask(index) {
+      tasks.splice(index, 1);
+      updateUI();
+    }
+
+    async function addTask() {
+      const url = document.getElementById('url').value.trim();
+      if (!url) return alert('Vui lòng nhập link!');
+      if (tasks.length >= 5) return alert('Chỉ được tải tối đa 5 video cùng lúc.');
+
+      const task = { url, status: '⏳ Đang xử lý...', progress: 0, link: null };
+      tasks.push(task);
+      updateUI();
+
+      // Giả lập tăng phần trăm tiến trình
+      const interval = setInterval(() => {
+        if (task.progress < 90) {
+          task.progress += Math.random() * 5;
+          if (task.progress > 90) task.progress = 90;
+          updateUI();
+        }
+      }, 500);
 
       try {
         const res = await fetch('https://api.takeshi.dev/download', {
@@ -91,16 +146,19 @@
           body: JSON.stringify({ url })
         });
 
-        if (!res.ok) return resultBox.innerHTML = '❌ Không thể tải file. Link có thể không hợp lệ.';
+        if (!res.ok) throw new Error('Lỗi');
 
         const data = await res.json();
-        resultBox.innerHTML = `
-          ✅ Xử lý xong! <br>
-          <a href="https://api.takeshi.dev${data.downloadLink}" download>Nhấn vào đây để tải MP3</a>
-        `;
+        task.status = '✅ Hoàn tất!';
+        task.link = `https://api.takeshi.dev${data.downloadLink}`;
+        task.progress = 100;
       } catch (err) {
-        resultBox.innerHTML = '⚠️ Có lỗi xảy ra khi kết nối server.';
+        task.status = '❌ Lỗi khi xử lý!';
+        task.progress = 100;
       }
+
+      clearInterval(interval);
+      updateUI();
     }
   </script>
 </body>
