@@ -76,32 +76,39 @@
       background-color: #f1c40f;
       transition: width 0.4s;
     }
-    .cancel-btn {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      background: transparent;
+    .task-btns {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .cancel-btn, .download-btn {
+      background: #e74c3c;
+      color: #fff;
       border: none;
-      color: #e74c3c;
-      font-weight: bold;
+      border-radius: 5px;
+      font-size: 15px;
+      padding: 6px 14px;
       cursor: pointer;
     }
-    a.download-link {
+    .download-btn {
+      background: #2980b9;
+    }
+    .download-btn.downloaded {
+      background: #2ecc71;
+      color: #fff;
+      cursor: default;
+    }
+    .download-link {
       color: #00ffcc;
       text-decoration: none;
       font-weight: bold;
     }
-    .action-btn {
-      padding: 6px 12px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      background-color: #3498db;
-      color: #fff;
-      cursor: pointer;
-    }
-    .action-btn.red {
-      background-color: #e74c3c;
+    .video-title {
+      color: #ffe082;
+      margin-top: 4px;
+      margin-bottom: 2px;
+      font-size: 15px;
     }
   </style>
 </head>
@@ -135,11 +142,21 @@
         const div = document.createElement('div');
         div.className = 'task';
         div.innerHTML = `
-          <div><strong>Task ${index + 1}</strong>: ${task.url}</div>
+          <div><strong>Task ${index + 1}</strong>: <a href="${task.url}" style="color:#81d4fa" target="_blank">${task.url}</a></div>
+          <div class="video-title">${task.title ? `🎵 ${task.title}` : ''}</div>
           <div>${task.status}</div>
           <div class="progress"><div class="progress-bar" style="width: ${task.progress}%"></div></div>
-          ${task.link ? `<div><a class="download-link" href="${task.link}" download>🎧 Tải MP3</a></div>` : ''}
-          <button class="cancel-btn" onclick="cancelTask(${index})">❌</button>
+          <div class="task-btns">
+            ${
+              !task.done
+                ? `<button class="cancel-btn" onclick="cancelTask(${index})">❌ Hủy</button>`
+                : !task.downloaded
+                  ? `<a class="download-link" href="${task.link}" download>
+                        <button class="download-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống</button>
+                     </a>`
+                  : `<button class="download-btn downloaded" disabled>✅ Đã tải xong</button>`
+            }
+          </div>
         `;
         list.appendChild(div);
       });
@@ -150,15 +167,25 @@
       updateUI();
     }
 
+    function markDownloaded(index, event) {
+      // Tránh double click khi tải file (giữ lại nút khi browser chưa tải xong)
+      setTimeout(() => {
+        tasks[index].downloaded = true;
+        updateUI();
+      }, 700);
+      // Không cho nút click trigger link 2 lần
+      if(event) event.stopPropagation();
+    }
+
     async function addTask() {
       const urlInput = document.getElementById('url');
       const url = urlInput.value.trim();
       if (!url) return alert('Vui lòng nhập link!');
       if (tasks.length >= 5) return alert('Chỉ được tải tối đa 5 video cùng lúc.');
 
-      urlInput.value = ''; // ✅ Xoá input sau khi bấm
+      urlInput.value = ''; // Xoá input sau khi bấm
 
-      const task = { url, status: '⏳ Đang xử lý...', progress: 0, link: null };
+      const task = { url, title: '', status: '⏳ Đang xử lý...', progress: 0, link: null, done: false, downloaded: false };
       tasks.push(task);
       updateUI();
 
@@ -179,14 +206,18 @@
         });
 
         if (!res.ok) throw new Error('Lỗi');
-
         const data = await res.json();
+
+        // Nhận thêm cả tiêu đề từ backend nếu có
         task.status = '✅ Hoàn tất!';
         task.link = `https://api.takeshi.dev${data.downloadLink}`;
         task.progress = 100;
+        task.done = true;
+        if (data.title) task.title = data.title;
       } catch (err) {
         task.status = '❌ Lỗi khi xử lý!';
         task.progress = 100;
+        task.done = true;
       }
 
       clearInterval(interval);
