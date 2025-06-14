@@ -11,7 +11,6 @@
       padding: 30px;
       text-align: center;
     }
-
     .container {
       background: rgba(0, 0, 0, 0.4);
       padding: 30px;
@@ -20,15 +19,21 @@
       max-width: 600px;
       margin: auto;
     }
-
+    .input-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
     input[type="text"] {
       padding: 12px;
-      width: 90%;
+      flex: 1;
       border: none;
       border-radius: 6px;
       font-size: 16px;
+      width: 90%;
     }
-
     button {
       background-color: #27ae60;
       color: white;
@@ -39,11 +44,17 @@
       font-size: 16px;
       margin-top: 10px;
     }
-
     button:hover {
       background-color: #2ecc71;
     }
-
+    .paste-btn {
+      background-color: #2980b9;
+      padding: 12px 14px;
+      margin-top: 0;
+    }
+    .paste-btn:hover {
+      background-color: #3498db;
+    }
     .task {
       background: rgba(255, 255, 255, 0.1);
       margin-top: 15px;
@@ -52,7 +63,6 @@
       text-align: left;
       position: relative;
     }
-
     .progress {
       height: 8px;
       background: #444;
@@ -60,14 +70,12 @@
       overflow: hidden;
       margin-top: 10px;
     }
-
     .progress-bar {
       height: 100%;
       width: 0%;
       background-color: #f1c40f;
       transition: width 0.4s;
     }
-
     .cancel-btn {
       position: absolute;
       right: 10px;
@@ -78,40 +86,47 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     a.download-link {
       color: #00ffcc;
       text-decoration: none;
       font-weight: bold;
     }
-
     .action-btn {
-    padding: 6px 12px;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: #fff;
-    cursor: pointer;
+      padding: 6px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
     }
-
-  .action-btn.red {
-  background-color: #e74c3c;
-  }
+    .action-btn.red {
+      background-color: #e74c3c;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🎵 YouTube to MP3</h1>
     <p>Nhập link YouTube để tải MP3 (tối đa 5 task).</p>
-    <input type="text" id="url" placeholder="Dán link video YouTube...">
-    <br>
+    <div class="input-row">
+      <input type="text" id="url" placeholder="Dán link video YouTube...">
+      <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
+    </div>
     <button onclick="addTask()">Tải về</button>
     <div id="taskList"></div>
   </div>
-
   <script>
     let tasks = [];
+
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('url').value = text;
+      } catch (err) {
+        alert('Không thể dán: Trình duyệt bị chặn hoặc không hỗ trợ.');
+      }
+    }
 
     function updateUI() {
       const list = document.getElementById('taskList');
@@ -136,9 +151,12 @@
     }
 
     async function addTask() {
-      const url = document.getElementById('url').value.trim();
+      const urlInput = document.getElementById('url');
+      const url = urlInput.value.trim();
       if (!url) return alert('Vui lòng nhập link!');
       if (tasks.length >= 5) return alert('Chỉ được tải tối đa 5 video cùng lúc.');
+
+      urlInput.value = ''; // ✅ Xoá input sau khi bấm
 
       const task = { url, status: '⏳ Đang xử lý...', progress: 0, link: null };
       tasks.push(task);
