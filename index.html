@@ -6,123 +6,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background: linear-gradient(to right, #232526, #4ca1af);
-      color: #fff;
+      margin: 0; padding: 0; min-height: 100vh;
+      background: linear-gradient(to right, #232526, #4ca1af); color: #fff;
     }
     body { font-family: 'Segoe UI', Arial, sans-serif; }
-
     .container {
       background: rgba(10,20,40,0.58);
       border-radius: 13px;
-      max-width: 440px;
+      max-width: 880px;
       margin: 24px auto 0 auto;
       box-shadow: 0 3px 20px 0 #0e27346a;
       padding: 0 0 14px 0;
       width: 97vw;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .header-box {
-      position: sticky;
-      top: 0;
-      z-index: 99;
+      width: 100%;
       background: rgba(22,27,38,0.98);
       border-radius: 13px 13px 0 0;
       box-shadow: 0 2px 18px 0 #0002;
-      padding-top: 18px;
-      padding-bottom: 12px;
+      padding: 18px 0 18px 0;
+      display: flex; flex-direction: column; align-items: center;
     }
     .title-app {
-      font-size: 18px;
-      margin-bottom: 3px;
-      margin-top: 2px;
-      font-weight: 600;
+      font-size: 19px;
+      margin-bottom: 4px; font-weight: 600;
       letter-spacing: 0.2px;
       text-shadow: 0 1px 7px #212d3a66;
       text-align: center;
     }
     .desc-app {
       font-size: 13px;
-      margin-bottom: 12px;
-      margin-top: 0px;
+      margin-bottom: 13px;
       color:#d1eeff;
       text-align: center;
       padding: 0 14px;
     }
-    .input-row-wrap {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-    .input-row {
-      display: flex;
-      align-items: center;
+    .search-row {
+      display: flex; justify-content: center; align-items: center;
       gap: 5px;
-      background: #162130ee;
-      border-radius: 7px;
-      padding: 2px 5px;
-      max-width: 360px;
-      width: 100%;
-      margin: 0 auto;
-      box-sizing: border-box;
-      box-shadow: 0 1px 5px #1a365599;
+      margin-bottom: 0; margin-top: 0;
+      width: 99vw; max-width: 420px;
     }
-    input[type="text"] {
+    .search-input {
       padding: 8px 7px 8px 7px;
       border: none;
       border-radius: 5px;
       font-size: 14px;
       min-width: 40px;
-      max-width: 100%;
+      max-width: 220px;
       background: #1e2a3c;
       color: #fff;
       flex: 1 1 0%;
-      outline: none;
-      margin: 0;
+      outline: none; margin: 0;
       transition: box-shadow 0.15s;
     }
-    .paste-btn,
-    .download-btn {
+    .paste-btn, .download-btn, .search-btn {
       min-width: unset;
       width: auto;
-      padding: 7px 11px;
+      padding: 7px 12px;
       font-size: 13px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       transition: background 0.15s;
     }
-    .paste-btn {
-      background-color: #2980b9;
-      color: #fff;
-      margin-left: 0;
-    }
+    .paste-btn { background-color: #2980b9; color: #fff; }
     .paste-btn:hover { background-color: #3498db;}
-    .download-btn {
-      background-color: #27ae60;
-      color: white;
-      margin-left: 0;
-    }
+    .search-btn { background-color: #6c4ad9; color: white; }
+    .search-btn:hover { background-color: #8257e6;}
+    .download-btn { background-color: #27ae60; color: white; }
     .download-btn:hover { background-color: #2ecc71;}
     .input-error {
-      color: #ffcdd2;
-      background: #38040d33;
-      border-radius: 3px;
-      font-size: 12px;
-      padding: 2px 0 2px 0;
-      margin: 5px 18px 3px 18px;
-      min-height: 18px;
-      text-align: left;
-      text-indent: 6px;
+      color: #ffcdd2; background: #38040d33; border-radius: 3px;
+      font-size: 12px; padding: 2px 0 2px 0; margin: 5px 18px 3px 18px;
+      min-height: 18px; text-align: left; text-indent: 6px;
+    }
+    .main-content-row {
+      display: flex; flex-direction: row; gap: 30px;
+      width: 100%; justify-content: center;
+      margin-top: 18px; flex: 1 1 auto;
+      min-height: 60vh;
+    }
+    .video-list-col, .task-list-col {
+      flex: 1 1 0; min-width: 300px; max-width: 400px;
+      display: flex; flex-direction: column; align-items: stretch;
+    }
+    .video-list-col { align-items: flex-start; }
+    .task-list-col { align-items: flex-end; }
+    .search-results-title {
+      font-size: 14px; margin: 6px 0 7px 8px; font-weight: 600; color: #96f7fa;
+      letter-spacing: 0.3px;
+    }
+    .video-result-list {
+      list-style: none; margin: 0; padding: 0; width: 100%;
+    }
+    .video-result-item {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(30,44,66,0.36);
+      border-radius: 6px; margin-bottom: 9px; padding: 6px 9px 6px 7px;
+      transition: box-shadow 0.13s, background 0.11s;
+      border: 1px solid #21436a1a;
+      position: relative;
+      min-height: 38px;
+    }
+    .video-result-thumb {
+      width: 64px; height: 38px; object-fit: cover; border-radius: 5px;
+      background: #1c2737; flex-shrink: 0; border: 1px solid #234052;
+      margin-right: 6px;
+    }
+    .video-result-info { flex: 1 1 auto; }
+    .video-result-title {
+      font-size: 13.3px; font-weight: 500; color: #e2fdff;
+      margin: 0 0 2px 0; word-break: break-word; line-height: 1.25;
+      display: block;
+    }
+    .video-result-duration {
+      font-size: 12px; color: #e6d18b;
+      margin-top: 0; margin-right: 4px;
+    }
+    .video-result-download {
+      margin-left: 11px;
     }
     .tasklist {
-      margin: 9px 7px 0 7px;
+      margin: 0;
+      width: 100%;
     }
     .task {
       background: rgba(255,255,255,0.07);
-      margin-bottom: 6px;
-      padding: 4px 6px 3px 6px;
+      margin-bottom: 7px;
+      padding: 4px 7px 3px 7px;
       border-radius: 6px;
       font-size: 13.2px;
       border: 1px solid #394c5799;
@@ -133,6 +149,8 @@
       min-height: 35px;
       gap: 0;
       transition: box-shadow 0.16s;
+      max-width: 410px;
+      align-self: flex-end;
     }
     .task:hover { box-shadow: 0 2px 10px 0 #285b7042; }
     .task-row {
@@ -164,23 +182,11 @@
       display: block;
       margin-top: 1px;
     }
-    .video-title a {
-      color: #b6d6ff;
-      text-decoration: none;
-      transition: color 0.2s;
-      word-break: break-word;
-      line-height: 1.33;
-    }
+    .video-title a { color: #b6d6ff; text-decoration: none; transition: color 0.2s; word-break: break-word; line-height: 1.33; }
     .video-title a:hover { color: #39d3ff; text-decoration: underline;}
     .video-duration {
-      font-size: 12px;
-      color: #7ec5e6;
-      margin-left: 4px;
-      margin-top: 3px;
-      flex-shrink: 0;
-      font-weight: 400;
-      min-width: 34px;
-      text-align: right;
+      font-size: 12px; color: #7ec5e6; margin-left: 4px; margin-top: 3px;
+      flex-shrink: 0; font-weight: 400; min-width: 34px; text-align: right;
     }
     .progress {
       height: 5px;
@@ -199,12 +205,8 @@
       border-radius: 3px;
     }
     .task-action-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 2px;
+      display: flex; flex-direction: row; align-items: center; justify-content: flex-end;
+      gap: 8px; margin-top: 2px;
     }
     .task-status-txt {
       font-size: 12px;
@@ -236,118 +238,24 @@
       transition: background 0.16s;
       line-height: 1.2;
     }
-.suggest-box {
-  position: absolute;
-  left: 0; right: 0;
-  top: 102%; z-index: 1000;
-  background: #1a2533f8;
-  border-radius: 0 0 8px 8px;
-  list-style: none;
-  padding: 0; margin: 2px 0 0 0;
-  box-shadow: 0 3px 12px #2229;
-  max-height: 210px;
-  overflow-y: auto;
-  border: 1px solid #2980b9;
-  width: 100%;
-}
-.suggest-item {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 7px 9px 6px 7px;
-  font-size: 13px;
-  color: #fff;
-  transition: background 0.12s;
-}
-.suggest-item:hover {
-  background: #215078;
-}
-.suggest-thumb {
-  width: 48px; height: 28px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-right: 10px;
-  flex-shrink: 0;
-  border: 1px solid #234052;
-}
-.suggest-title {
-  flex: 1;
-  font-size: 13px;
-  color: #d5ebff;
-  white-space: normal;
-  line-height: 1.28;
-  word-break: break-word;
-}
-.input-row-wrap {
-  position: relative;
-}
-.suggest-box {
-  position: absolute;
-  left: 0; right: 0;
-  top: 102%; z-index: 1000;
-  background: #1a2533f8;
-  border-radius: 0 0 8px 8px;
-  list-style: none;
-  padding: 0; margin: 2px 0 0 0;
-  box-shadow: 0 3px 12px #2229;
-  max-height: 210px;
-  overflow-y: auto;
-  border: 1px solid #2980b9;
-  width: 100%;
-}
-.suggest-item {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 7px 9px 6px 7px;
-  font-size: 13px;
-  color: #fff;
-  transition: background 0.12s;
-}
-.suggest-item:hover {
-  background: #215078;
-}
-.suggest-thumb {
-  width: 48px; height: 28px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-right: 10px;
-  flex-shrink: 0;
-  border: 1px solid #234052;
-}
-.suggest-title {
-  flex: 1;
-  font-size: 13px;
-  color: #d5ebff;
-  white-space: normal;
-  line-height: 1.28;
-  word-break: break-word;
-}
-.input-row-wrap {
-  position: relative;
-}
-
-
     .main-btn:hover { background: #36b4e3; }
     .main-btn.done { background: #6cd883; color: #fff; cursor: default;}
     .main-btn.error { background: #ee5e52; color: #fff; cursor: default;}
     .main-btn.cancel { background: #b2576d; color: #fff;}
     .download-link { color: #00ffcc; text-decoration: none; font-weight: bold;}
-    @media (max-width: 500px) {
+    @media (max-width: 850px) {
       .container { max-width: 99vw; }
-      .desc-app { padding: 0 4vw; }
-      .input-row { max-width: 98vw; padding: 2px 2vw;}
-      input[type="text"] { font-size: 12px; max-width: 100%;}
-      .download-btn, .paste-btn { font-size: 12px; padding: 7px 7px;}
-      .tasklist { margin: 7px 2px 0 2px;}
-      .task-status-txt { max-width: 33vw;}
-      .video-title { font-size: 12.3px;}
+      .main-content-row { flex-direction: column; gap: 12px; align-items: center;}
+      .video-list-col, .task-list-col { max-width: 99vw; min-width: 0; width: 97vw;}
+      .task { max-width: 99vw;}
     }
-    @media (max-width: 340px) {
-      .input-row { gap: 2px;}
-      .tasklist { margin: 3px 1px 0 1px;}
-      .container { border-radius: 6px;}
-      .header-box { border-radius: 6px 6px 0 0;}
+    @media (max-width: 480px) {
+      .search-row { max-width: 99vw; }
+      .container { max-width: 99vw; }
+      .video-list-col, .task-list-col { min-width: 0; }
+      .desc-app { padding: 0 3vw; }
+      .video-title { font-size: 12.3px;}
+      .task-status-txt { max-width: 33vw;}
     }
   </style>
 </head>
@@ -355,18 +263,24 @@
   <div class="container">
     <div class="header-box">
       <div class="title-app">🎵 YouTube to MP3</div>
-      <div class="desc-app">Nhập link YouTube để tải MP3 (tối đa 5 link đang tải).</div>
-      <div class="input-row-wrap">
-        <div class="input-row">
-          <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
-          <input type="text" id="url" placeholder="Dán link video YouTube...">
-          <ul id="suggestBox" class="suggest-box" style="display:none"></ul>
-          <button class="download-btn" onclick="addTask()">Tải về</button>
-        </div>
+      <div class="desc-app">Nhập từ khóa hoặc dán link YouTube để tải MP3 (tối đa 5 link đang tải).</div>
+      <div class="search-row">
+        <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
+        <input type="text" class="search-input" id="url" placeholder="Nhập từ khóa hoặc link video...">
+        <button class="search-btn" onclick="searchVideo()">Tìm kiếm</button>
+        <button class="download-btn" onclick="addTask()">Tải link</button>
       </div>
       <div id="inputError" class="input-error"></div>
     </div>
-    <div class="tasklist" id="taskList"></div>
+    <div class="main-content-row">
+      <div class="video-list-col">
+        <div class="search-results-title" id="searchResultsTitle" style="display:none">Kết quả tìm kiếm</div>
+        <ul class="video-result-list" id="searchResults"></ul>
+      </div>
+      <div class="task-list-col">
+        <div class="tasklist" id="taskList"></div>
+      </div>
+    </div>
   </div>
   <script>
     let tasks = [];
@@ -376,9 +290,7 @@
     function showInputError(msg) {
       document.getElementById('inputError').textContent = msg || '';
     }
-    function clearInputError() {
-      showInputError('');
-    }
+    function clearInputError() { showInputError(''); }
     function secondsToHMS(seconds) {
       if (!seconds || isNaN(seconds)) return '';
       const h = Math.floor(seconds / 3600);
@@ -441,10 +353,7 @@
         list.appendChild(div);
       });
     }
-    function cancelTask(index) {
-      tasks.splice(index, 1);
-      updateUI();
-    }
+    function cancelTask(index) { tasks.splice(index, 1); updateUI(); }
     function markDownloaded(index, event) {
       setTimeout(() => {
         tasks[index].downloaded = true;
@@ -452,23 +361,14 @@
       }, 700);
       if(event) event.stopPropagation();
     }
-    async function addTask() {
+    async function addTask(urlParam) {
       clearInputError();
       const urlInput = document.getElementById('url');
-      const url = urlInput.value.trim();
-      if (!url) {
-        showInputError('Vui lòng nhập link!');
-        return;
-      }
-      if (!isValidYoutubeURL(url)) {
-        showInputError('Vui lòng nhập đúng link YouTube!');
-        return;
-      }
-      if (getProcessingTaskCount() >= 5) {
-        showInputError('Chỉ được tải tối đa 5 link cùng lúc. Vui lòng chờ!');
-        return;
-      }
-      urlInput.value = '';
+      const url = (urlParam ? urlParam : urlInput.value.trim());
+      if (!url) { showInputError('Vui lòng nhập link!'); return; }
+      if (!isValidYoutubeURL(url)) { showInputError('Vui lòng nhập đúng link YouTube!'); return; }
+      if (getProcessingTaskCount() >= 5) { showInputError('Chỉ được tải tối đa 5 link cùng lúc. Vui lòng chờ!'); return; }
+      if (!urlParam) urlInput.value = '';
       clearInputError();
       const task = {
         url, title: '', duration: '', status: 'processing',
@@ -476,8 +376,7 @@
         statusMsg: 'Đang khởi tạo...',
         errorMsg: null
       };
-      tasks.push(task);
-      updateUI();
+      tasks.push(task); updateUI();
       async function poll() {
         try {
           const res = await fetch('https://api.takeshi.dev/download', {
@@ -518,60 +417,40 @@
       }
       poll();
     }
-
-    // === Suggest Box Search ===
-    let suggestTimeout = null;
-    const input = document.getElementById('url');
-    const suggestBox = document.getElementById('suggestBox');
-
-    input.addEventListener('input', function(e) {
-      const val = input.value.trim();
-      // Nếu là link youtube hoặc quá ngắn thì ẩn box gợi ý luôn
-      if (isValidYoutubeURL(val) || val.length < 2) {
-        suggestBox.style.display = 'none';
-        suggestBox.innerHTML = '';
-        return;
+    // ==== Video search & render list ====
+    async function searchVideo() {
+      clearInputError();
+      const urlInput = document.getElementById('url');
+      const keyword = urlInput.value.trim();
+      const searchResults = document.getElementById('searchResults');
+      const searchResultsTitle = document.getElementById('searchResultsTitle');
+      searchResults.innerHTML = '';
+      searchResultsTitle.style.display = 'none';
+      if (!keyword) { showInputError('Vui lòng nhập từ khóa!'); return; }
+      if (isValidYoutubeURL(keyword)) { showInputError('Muốn tải bằng link thì bấm "Tải link"'); return; }
+      searchResultsTitle.style.display = 'block';
+      searchResults.innerHTML = `<li style="color:#ffe082; padding:10px 0 8px 6px;">🔎 Đang tìm kiếm...</li>`;
+      try {
+        const res = await fetch('https://api.takeshi.dev/search?q=' + encodeURIComponent(keyword));
+        const list = await res.json();
+        if (!list || !Array.isArray(list) || list.length === 0) {
+          searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không tìm thấy video nào.</li>`;
+          return;
+        }
+        searchResults.innerHTML = list.slice(0,10).map(v => `
+          <li class="video-result-item">
+            <img class="video-result-thumb" src="${v.thumbnail}" loading="lazy">
+            <div class="video-result-info">
+              <div class="video-result-title">${v.title}</div>
+              <div class="video-result-duration">${secondsToHMS(v.duration)}</div>
+            </div>
+            <button class="download-btn video-result-download" onclick="addTask('${v.url}')">Tải về</button>
+          </li>
+        `).join('');
+      } catch {
+        searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không thể tìm kiếm lúc này.</li>`;
       }
-      // Gọi API search sau 250ms (debounce)
-      if (suggestTimeout) clearTimeout(suggestTimeout);
-      suggestTimeout = setTimeout(() => {
-        fetch('https://api.takeshi.dev/search?q=' + encodeURIComponent(val)) // <-- nếu deploy domain khác thì sửa lại fetch cho đúng
-          .then(r => r.json())
-          .then(list => {
-            if (!list || !Array.isArray(list) || list.length === 0) {
-              suggestBox.style.display = 'none';
-              suggestBox.innerHTML = '';
-              return;
-            }
-            suggestBox.innerHTML = list.map(v => `
-              <li class="suggest-item" data-url="${v.url.replace(/"/g, "&quot;")}">
-                <img class="suggest-thumb" src="${v.thumbnail}" loading="lazy">
-                <span class="suggest-title">${v.title}</span>
-              </li>
-            `).join('');
-            suggestBox.style.display = 'block';
-          });
-      }, 250);
-    });
-
-    // Khi click suggestion, điền link, ẩn box, auto tải luôn
-    suggestBox.addEventListener('click', function(e) {
-      let li = e.target.closest('.suggest-item');
-      if (!li) return;
-      input.value = li.getAttribute('data-url');
-      suggestBox.style.display = 'none';
-      suggestBox.innerHTML = '';
-      addTask();
-    });
-    input.addEventListener('blur', function() {
-      setTimeout(() => {
-        suggestBox.style.display = 'none';
-        suggestBox.innerHTML = '';
-      }, 220);
-    });
-    input.addEventListener('focus', function() {
-      if (suggestBox.innerHTML) suggestBox.style.display = 'block';
-    });
+    }
   </script>
 </body>
 </html>
