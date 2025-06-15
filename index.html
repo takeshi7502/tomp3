@@ -281,19 +281,18 @@
             task.link = `https://api.takeshi.dev${data.downloadLink}`;
             task.progress = 100;
             updateUI();
-            return;
+            return; // DỪNG POLLING
           }
           if (data.status === 'error') {
             task.status = 'error';
             task.progress = 100;
             task.errorMsg = data.error || 'Không rõ';
             updateUI();
-            return;
+            return; // DỪNG POLLING
           }
           // still processing
           task.status = 'processing';
           task.statusMsg = 'Đang xử lý trên máy chủ...';
-          // tăng progress ảo lên 95
           if (task.progress < 95) {
             task.progress += Math.random() * 3;
             if (task.progress > 95) task.progress = 95;
