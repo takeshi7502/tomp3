@@ -3,92 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <title>YouTube to MP3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(to right, #232526, #4ca1af);
-      color: #fff;
+    html, body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
+      background: linear-gradient(to right, #232526, #4ca1af);
+      color: #fff;
     }
+    body { font-family: 'Segoe UI', Arial, sans-serif; }
+
     .container {
       background: rgba(10,20,40,0.58);
-      padding: 8px 0 5px 0;
       border-radius: 13px;
-      width: 99vw;
-      max-width: 650px;
-      min-width: 220px;
-      margin: 0 auto;
-      margin-top: 6px;
-      margin-bottom: 0;
+      max-width: 440px;
+      margin: 24px auto 0 auto;
       box-shadow: 0 3px 20px 0 #0e27346a;
+      padding: 0 0 14px 0;
+      width: 95vw;
     }
     .header-box {
       position: sticky;
       top: 0;
       z-index: 99;
       background: rgba(22,27,38,0.98);
-      padding-bottom: 6px;
       border-radius: 13px 13px 0 0;
       box-shadow: 0 2px 18px 0 #0002;
+      padding-top: 18px;
+      padding-bottom: 12px;
     }
     .title-app {
       font-size: 18px;
-      margin-bottom: 5px;
-      margin-top: 5px;
+      margin-bottom: 3px;
+      margin-top: 2px;
       font-weight: 600;
       letter-spacing: 0.2px;
       text-shadow: 0 1px 7px #212d3a66;
     }
     .desc-app {
-      font-size: 12px;
-      margin-bottom: 8px;
-      color:#cef;
+      font-size: 13px;
+      margin-bottom: 12px;
+      margin-top: 0px;
+      color:#d1eeff;
+      text-align: center;
+      padding: 0 14px;
+    }
+    .input-row-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .input-row {
+      background: #162130ee;
+      border-radius: 7px;
+      padding: 2px 5px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin: 0 7px 0 7px;
-      margin-bottom: 4px;
+      max-width: 390px;
+      width: 100%;
+      box-sizing: border-box;
+      gap: 5px;
+      box-shadow: 0 1px 5px #1a365599;
     }
     input[type="text"] {
-      padding: 9px 7px 8px 7px;
+      padding: 8px 7px 8px 7px;
       border: none;
       border-radius: 5px;
-      font-size: 13.2px;
-      width: 100%;
-      outline: none;
-      flex: 1 1 auto;
+      font-size: 14px;
+      width: 170px;
+      min-width: 65px;
+      max-width: 240px;
       background: #1e2a3c;
       color: #fff;
+      flex: 1 1 auto;
+      outline: none;
       margin: 0;
+      transition: box-shadow 0.15s;
     }
     .paste-btn {
       background-color: #2980b9;
       color: #fff;
-      padding: 8px 11px;
+      padding: 7px 9px 7px 9px;
       border: none;
       border-radius: 5px;
       font-size: 13px;
       cursor: pointer;
-      margin-right: 1px;
+      margin-right: 0;
       margin-left: 0;
-      min-width: 34px;
-      transition: background 0.17s;
+      min-width: 33px;
+      transition: background 0.15s;
     }
     .paste-btn:hover { background-color: #3498db;}
     .download-btn {
       background-color: #27ae60;
       color: white;
-      padding: 9px 15px;
+      padding: 7px 13px;
       border: none;
       border-radius: 5px;
       font-size: 13px;
       cursor: pointer;
-      margin-left: 1px;
-      transition: background 0.17s;
+      margin-left: 0;
+      min-width: 68px;
+      transition: background 0.15s;
     }
     .download-btn:hover { background-color: #2ecc71;}
     .input-error {
@@ -97,15 +114,13 @@
       border-radius: 3px;
       font-size: 12px;
       padding: 2px 0 2px 0;
-      margin-bottom: 0;
+      margin: 5px 18px 3px 18px;
       min-height: 18px;
-      margin: 0 8px 2px 8px;
       text-align: left;
       text-indent: 6px;
     }
     .tasklist {
-      margin: 0 7px 0 7px;
-      margin-top: 7px;
+      margin: 9px 7px 0 7px;
     }
     .task {
       background: rgba(255,255,255,0.07);
@@ -229,15 +244,22 @@
     .main-btn.error { background: #ee5e52; color: #fff; cursor: default;}
     .main-btn.cancel { background: #b2576d; color: #fff;}
     .download-link { color: #00ffcc; text-decoration: none; font-weight: bold;}
-    @media (max-width: 800px) {
-      .container { max-width: 98vw; }
-    }
     @media (max-width: 480px) {
-      .container { padding: 2px 0 2px 0; }
-      .input-row { margin: 0 2px 0 2px;}
-      .tasklist { margin: 0 2px 0 2px;}
+      .container { padding: 0; max-width: 99vw;}
+      .desc-app { padding: 0 3vw; }
+      .input-row { max-width: 97vw;}
+      input[type="text"] { font-size: 12.5px; min-width: 0; max-width: 120px;}
+      .download-btn { font-size: 12px; padding: 7px 7px;}
+      .paste-btn { font-size: 12px; padding: 7px 7px;}
+      .tasklist { margin: 7px 2px 0 2px;}
+      .task-status-txt { max-width: 33vw;}
       .video-title { font-size: 12.3px;}
-      .task-status-txt { max-width: 36vw;}
+    }
+    @media (max-width: 340px) {
+      .input-row { gap: 2px;}
+      .tasklist { margin: 3px 1px 0 1px;}
+      .container { border-radius: 6px;}
+      .header-box { border-radius: 6px 6px 0 0;}
     }
   </style>
 </head>
@@ -246,10 +268,12 @@
     <div class="header-box">
       <div class="title-app">🎵 YouTube to MP3</div>
       <div class="desc-app">Nhập link YouTube để tải MP3 (tối đa 5 link đang tải).</div>
-      <div class="input-row">
-        <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
-        <input type="text" id="url" placeholder="Dán link video YouTube...">
-        <button class="download-btn" onclick="addTask()">Tải về</button>
+      <div class="input-row-wrap">
+        <div class="input-row">
+          <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
+          <input type="text" id="url" placeholder="Dán link video YouTube...">
+          <button class="download-btn" onclick="addTask()">Tải về</button>
+        </div>
       </div>
       <div id="inputError" class="input-error"></div>
     </div>
@@ -257,7 +281,6 @@
   </div>
   <script>
     let tasks = [];
-
     function isValidYoutubeURL(url) {
       return /^(https?\:\/\/)?(www\.|m\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);
     }
