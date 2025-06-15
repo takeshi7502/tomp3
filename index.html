@@ -238,6 +238,18 @@
       transition: background 0.16s;
       line-height: 1.2;
     }
+    .task-title {
+      font-size: 14px;
+      margin: 6px 0 7px 8px;
+      font-weight: 600;
+      color: #ffde80;
+      letter-spacing: 0.3px;
+    }
+    .video-warn {
+      min-height: 16px;
+    }
+    .video-result-download svg { vertical-align: middle; }
+
     .main-btn:hover { background: #36b4e3; }
     .main-btn.done { background: #6cd883; color: #fff; cursor: default;}
     .main-btn.error { background: #ee5e52; color: #fff; cursor: default;}
@@ -283,174 +295,234 @@
     </div>
   </div>
   <script>
-    let tasks = [];
-    function isValidYoutubeURL(url) {
-      return /^(https?\:\/\/)?(www\.|m\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);
+  let tasks = [];
+  let activeWarn = {}; // Map videoId -> true nếu đang cảnh báo "đã có"
+
+  function isValidYoutubeURL(url) {
+    return /^(https?\:\/\/)?(www\.|m\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);
+  }
+  function showInputError(msg) {
+    document.getElementById('inputError').textContent = msg || '';
+  }
+  function clearInputError() { showInputError(''); }
+  function secondsToHMS(seconds) {
+    if (!seconds || isNaN(seconds)) return '';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+  async function pasteClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('url').value = text;
+    } catch (err) {
+      alert('Không thể dán: Trình duyệt bị chặn hoặc không hỗ trợ.');
     }
-    function showInputError(msg) {
-      document.getElementById('inputError').textContent = msg || '';
+  }
+  function getProcessingTaskCount() {
+    return tasks.filter(t => t.status === 'processing').length;
+  }
+  function updateUI() {
+    // Task title
+    const listCol = document.querySelector('.task-list-col');
+    let taskTitle = document.getElementById('taskListTitle');
+    if (!taskTitle) {
+      taskTitle = document.createElement('div');
+      taskTitle.className = "task-title";
+      taskTitle.id = "taskListTitle";
+      listCol.insertBefore(taskTitle, document.getElementById('taskList'));
     }
-    function clearInputError() { showInputError(''); }
-    function secondsToHMS(seconds) {
-      if (!seconds || isNaN(seconds)) return '';
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      const s = Math.floor(seconds % 60);
-      if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-      return `${m}:${s.toString().padStart(2, '0')}`;
-    }
-    async function pasteClipboard() {
-      try {
-        const text = await navigator.clipboard.readText();
-        document.getElementById('url').value = text;
-      } catch (err) {
-        alert('Không thể dán: Trình duyệt bị chặn hoặc không hỗ trợ.');
+    taskTitle.innerHTML = "Đang tải xuống";
+    taskTitle.style.display = (tasks.length > 0) ? 'block' : 'none';
+
+    // Task list
+    const list = document.getElementById('taskList');
+    list.innerHTML = '';
+    tasks.forEach((task, index) => {
+      let timeStr = '';
+      if (task.status === 'done' && task.startTime && task.finishTime) {
+        let secs = Math.round((task.finishTime - task.startTime) / 1000);
+        if (secs < 0) secs = 0;
+        timeStr = `<span style="color:#8fc;"> (Hoàn tất trong ${secs} giây)</span>`;
+      } else if (task.status === 'processing' && task.startTime) {
+        let secs = Math.round((Date.now() - task.startTime) / 1000);
+        timeStr = `<span style="color:#bbb; font-size:11px;"> (${secs} giây)</span>`;
       }
-    }
-    function getProcessingTaskCount() {
-      return tasks.filter(t => t.status === 'processing').length;
-    }
-    function updateUI() {
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      tasks.forEach((task, index) => {
-        const div = document.createElement('div');
-        div.className = 'task';
-        div.innerHTML = `
-          <div class="task-row">
-            <span class="task-number">${index + 1}.</span>
-            <span class="video-title">
-              ${task.title
-                ? `<a href="${task.url}" target="_blank" title="${task.title}">${task.title}</a>`
-                : `Đang lấy thông tin video...`}
-            </span>
-            <span class="video-duration">${task.duration ? secondsToHMS(task.duration) : ''}</span>
-          </div>
-          <div class="progress">
-            <div class="progress-bar" style="width: ${task.progress}%"></div>
-          </div>
-          <div class="task-action-row">
-            <span class="task-status-txt">
-              ${
-                task.status === 'done' ? 'Hoàn tất!' :
-                task.status === 'error' ? `Lỗi: ${task.errorMsg || 'Không rõ'}` :
-                task.status === 'processing' ? (task.statusMsg || 'Đang xử lý...') : ''
-              }
-            </span>
+      const div = document.createElement('div');
+      div.className = 'task';
+      div.innerHTML = `
+        <div class="task-row">
+          <span class="task-number">${index + 1}.</span>
+          <span class="video-title">
+            ${task.title
+              ? `<a href="${task.url}" target="_blank" title="${task.title}">${task.title}</a>`
+              : `Đang lấy thông tin video...`}
+          </span>
+          <span class="video-duration">${task.duration ? secondsToHMS(task.duration) : ''}</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" style="width: ${task.progress}%"></div>
+        </div>
+        <div class="task-action-row">
+          <span class="task-status-txt">
             ${
-              task.status === 'done'
-                ? (!task.downloaded
-                    ? `<a class="download-link" href="${task.link}" download>
-                        <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống</button>
-                      </a>`
-                    : `<button class="main-btn done" disabled>✅ Đã tải xong</button>`)
-                : task.status === 'error'
-                  ? `<button class="main-btn error" disabled>Đóng</button>`
-                  : `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy</button>`
+              task.status === 'done' ? 'Hoàn tất!' + timeStr :
+              task.status === 'error' ? `Lỗi: ${task.errorMsg || 'Không rõ'}` :
+              task.status === 'processing' ? (task.statusMsg || 'Đang xử lý...') + timeStr : ''
             }
-          </div>
-        `;
-        list.appendChild(div);
-      });
-    }
-    function cancelTask(index) { tasks.splice(index, 1); updateUI(); }
-    function markDownloaded(index, event) {
-      setTimeout(() => {
-        tasks[index].downloaded = true;
-        updateUI();
-      }, 700);
-      if(event) event.stopPropagation();
-    }
-    async function addTask(urlParam) {
-      clearInputError();
-      const urlInput = document.getElementById('url');
-      const url = (urlParam ? urlParam : urlInput.value.trim());
-      if (!url) { showInputError('Vui lòng nhập link!'); return; }
-      if (!isValidYoutubeURL(url)) { showInputError('Vui lòng nhập đúng link YouTube!'); return; }
-      if (getProcessingTaskCount() >= 5) { showInputError('Chỉ được tải tối đa 5 link cùng lúc. Vui lòng chờ!'); return; }
-      if (!urlParam) urlInput.value = '';
-      clearInputError();
-      const task = {
-        url, title: '', duration: '', status: 'processing',
-        progress: 7, link: null, downloaded: false,
-        statusMsg: 'Đang khởi tạo...',
-        errorMsg: null
-      };
-      tasks.push(task); updateUI();
-      async function poll() {
-        try {
-          const res = await fetch('https://api.takeshi.dev/download', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
-          });
-          const data = await res.json();
-          if (data.title) task.title = data.title;
-          if (data.duration) task.duration = data.duration;
-          if (data.status === 'done') {
-            task.status = 'done';
-            task.link = `https://api.takeshi.dev${data.downloadLink}`;
-            task.progress = 100;
-            updateUI();
-            return;
+          </span>
+          ${
+            task.status === 'done'
+              ? (!task.downloaded
+                  ? `<a class="download-link" href="${task.link}" download>
+                      <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống</button>
+                    </a>`
+                  : `<button class="main-btn done" disabled>✅ Đã tải xong</button>`)
+              : task.status === 'error'
+                ? `<button class="main-btn error" disabled>Đóng</button>`
+                : `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy</button>`
           }
-          if (data.status === 'error') {
-            task.status = 'error';
-            task.progress = 100;
-            task.errorMsg = data.error || 'Không rõ';
-            updateUI();
-            return;
-          }
-          task.status = 'processing';
-          task.statusMsg = 'Đang xử lý trên máy chủ...';
-          if (task.progress < 92) {
-            task.progress += Math.random() * 2.1;
-            if (task.progress > 92) task.progress = 92;
-          }
-          updateUI();
-          setTimeout(poll, 4000);
-        } catch (err) {
-          task.status = 'error';
-          task.errorMsg = 'Lỗi kết nối tới server!';
-          updateUI();
-        }
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+  function cancelTask(index) { tasks.splice(index, 1); updateUI(); }
+  function markDownloaded(index, event) {
+    setTimeout(() => {
+      tasks[index].downloaded = true;
+      updateUI();
+    }, 700);
+    if(event) event.stopPropagation();
+  }
+  async function addTask(urlParam, videoId) {
+    clearInputError();
+    const urlInput = document.getElementById('url');
+    const url = (urlParam ? urlParam : urlInput.value.trim());
+    if (!url) { showInputError('Vui lòng nhập link!'); return; }
+    if (!isValidYoutubeURL(url)) { showInputError('Vui lòng nhập đúng link YouTube!'); return; }
+    if (getProcessingTaskCount() >= 5) { showInputError('Chỉ được tải tối đa 5 link cùng lúc. Vui lòng chờ!'); return; }
+    // Nếu là từ search video thì kiểm tra trùng
+    if (videoId) {
+      if (tasks.find(t => t.url.includes(videoId))) {
+        // Gọi showWarn dưới đúng video đó
+        showWarnUnderVideo(videoId);
+        return;
       }
-      poll();
     }
-    // ==== Video search & render list ====
-    async function searchVideo() {
-      clearInputError();
-      const urlInput = document.getElementById('url');
-      const keyword = urlInput.value.trim();
-      const searchResults = document.getElementById('searchResults');
-      const searchResultsTitle = document.getElementById('searchResultsTitle');
-      searchResults.innerHTML = '';
-      searchResultsTitle.style.display = 'none';
-      if (!keyword) { showInputError('Vui lòng nhập từ khóa!'); return; }
-      if (isValidYoutubeURL(keyword)) { showInputError('Muốn tải bằng link thì bấm "Tải link"'); return; }
-      searchResultsTitle.style.display = 'block';
-      searchResults.innerHTML = `<li style="color:#ffe082; padding:10px 0 8px 6px;">🔎 Đang tìm kiếm...</li>`;
+    if (!urlParam) urlInput.value = '';
+    clearInputError();
+    const task = {
+      url, title: '', duration: '', status: 'processing',
+      progress: 7, link: null, downloaded: false,
+      statusMsg: 'Đang khởi tạo...',
+      errorMsg: null,
+      startTime: Date.now(),
+      finishTime: null
+    };
+    tasks.push(task); updateUI();
+    async function poll() {
       try {
-        const res = await fetch('https://api.takeshi.dev/search?q=' + encodeURIComponent(keyword));
-        const list = await res.json();
-        if (!list || !Array.isArray(list) || list.length === 0) {
-          searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không tìm thấy video nào.</li>`;
+        const res = await fetch('https://api.takeshi.dev/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.title) task.title = data.title;
+        if (data.duration) task.duration = data.duration;
+        if (data.status === 'done') {
+          task.status = 'done';
+          task.link = `https://api.takeshi.dev${data.downloadLink}`;
+          task.progress = 100;
+          task.finishTime = Date.now();
+          updateUI();
           return;
         }
-        searchResults.innerHTML = list.slice(0,10).map(v => `
-          <li class="video-result-item">
-            <img class="video-result-thumb" src="${v.thumbnail}" loading="lazy">
-            <div class="video-result-info">
-              <div class="video-result-title">${v.title}</div>
-              <div class="video-result-duration">${secondsToHMS(v.duration)}</div>
-            </div>
-            <button class="download-btn video-result-download" onclick="addTask('${v.url}')">Tải về</button>
-          </li>
-        `).join('');
-      } catch {
-        searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không thể tìm kiếm lúc này.</li>`;
+        if (data.status === 'error') {
+          task.status = 'error';
+          task.progress = 100;
+          task.errorMsg = data.error || 'Không rõ';
+          updateUI();
+          return;
+        }
+        task.status = 'processing';
+        task.statusMsg = 'Đang xử lý trên máy chủ...';
+        if (task.progress < 92) {
+          task.progress += Math.random() * 2.1;
+          if (task.progress > 92) task.progress = 92;
+        }
+        updateUI();
+        setTimeout(poll, 4000);
+      } catch (err) {
+        task.status = 'error';
+        task.errorMsg = 'Lỗi kết nối tới server!';
+        updateUI();
       }
     }
+    poll();
+  }
+
+  // ==== Video search & render list ====
+  async function searchVideo() {
+    clearInputError();
+    const urlInput = document.getElementById('url');
+    const keyword = urlInput.value.trim();
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsTitle = document.getElementById('searchResultsTitle');
+    searchResults.innerHTML = '';
+    searchResultsTitle.style.display = 'none';
+    if (!keyword) { showInputError('Vui lòng nhập từ khóa!'); return; }
+    if (isValidYoutubeURL(keyword)) { showInputError('Muốn tải bằng link thì bấm "Tải link"'); return; }
+    searchResultsTitle.style.display = 'block';
+    searchResults.innerHTML = `<li style="color:#ffe082; padding:10px 0 8px 6px;">🔎 Đang tìm kiếm...</li>`;
+    try {
+      const res = await fetch('https://api.takeshi.dev/search?q=' + encodeURIComponent(keyword));
+      const list = await res.json();
+      if (!list || !Array.isArray(list) || list.length === 0) {
+        searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không tìm thấy video nào.</li>`;
+        return;
+      }
+      searchResults.innerHTML = list.slice(0,10).map(v => `
+        <li class="video-result-item" id="video_${v.id}">
+          <img class="video-result-thumb" src="${v.thumbnail}" loading="lazy">
+          <div class="video-result-info">
+            <div class="video-result-title">${v.title}</div>
+            <div class="video-result-duration">${secondsToHMS(v.duration)}</div>
+          </div>
+          <button class="download-btn video-result-download" onclick="addTask('${v.url}','${v.id}')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <div class="video-warn" id="warn_${v.id}" style="display:none;color:#ffaaaa; font-size:12px; margin-top:2px;"></div>
+        </li>
+      `).join('');
+    } catch {
+      searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không thể tìm kiếm lúc này.</li>`;
+    }
+  }
+  // Show cảnh báo ngay dưới video đã có trong danh sách tải
+  function showWarnUnderVideo(videoId) {
+    if (activeWarn[videoId]) return;
+    const warnDiv = document.getElementById('warn_' + videoId);
+    if (warnDiv) {
+      warnDiv.textContent = "Video này đã có trong danh sách tải!";
+      warnDiv.style.display = "block";
+      activeWarn[videoId] = true;
+      setTimeout(() => {
+        warnDiv.style.display = "none";
+        warnDiv.textContent = "";
+        activeWarn[videoId] = false;
+      }, 3000);
+    }
+  }
+
+  // Cho phép bấm Enter để tìm kiếm
+  document.getElementById('url').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') searchVideo();
+  });
   </script>
+
 </body>
 </html>
