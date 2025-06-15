@@ -519,6 +519,7 @@
       poll();
     }
 
+    // === Suggest Box Search ===
     let suggestTimeout = null;
     const input = document.getElementById('url');
     const suggestBox = document.getElementById('suggestBox');
@@ -534,7 +535,7 @@
       // Gọi API search sau 250ms (debounce)
       if (suggestTimeout) clearTimeout(suggestTimeout);
       suggestTimeout = setTimeout(() => {
-        fetch('/search?q=' + encodeURIComponent(val))
+        fetch('/search?q=' + encodeURIComponent(val)) // <-- nếu deploy domain khác thì sửa lại fetch cho đúng
           .then(r => r.json())
           .then(list => {
             if (!list || !Array.isArray(list) || list.length === 0) {
