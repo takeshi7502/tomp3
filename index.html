@@ -5,150 +5,176 @@
   <title>YouTube to MP3</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #2c3e50, #4ca1af);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(to right, #232526, #4ca1af);
       color: #fff;
-      padding: 30px;
+      padding: 24px 0;
       text-align: center;
+      min-height: 100vh;
     }
     .container {
-      background: rgba(0, 0, 0, 0.4);
-      padding: 30px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 600px;
-      margin: auto;
+      background: rgba(10,20,40,0.58);
+      padding: 26px 12px 18px 12px;
+      border-radius: 14px;
+      width: 98%;
+      max-width: 470px;
+      margin: 24px auto;
+      box-shadow: 0 4px 18px 0 #0e27344a;
     }
     .input-row {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 10px;
     }
     input[type="text"] {
-      padding: 12px;
+      padding: 11px;
       flex: 1;
       border: none;
       border-radius: 6px;
-      font-size: 16px;
-      width: 90%;
+      font-size: 15px;
+      width: 92%;
+      outline: none;
     }
     button {
       background-color: #27ae60;
       color: white;
       border: none;
-      padding: 12px 24px;
+      padding: 11px 23px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
+      font-size: 15px;
+      margin-top: 9px;
+      transition: background 0.17s;
     }
     button:hover {
       background-color: #2ecc71;
     }
     .paste-btn {
       background-color: #2980b9;
-      padding: 12px 14px;
+      padding: 11px 13px;
       margin-top: 0;
     }
     .paste-btn:hover {
       background-color: #3498db;
     }
+    .tasklist {
+      margin-top: 10px;
+    }
     .task {
-      background: rgba(255, 255, 255, 0.1);
-      margin-top: 12px;
-      padding: 12px 16px 10px 16px;
+      background: rgba(255,255,255,0.08);
+      margin-bottom: 9px;
+      padding: 7px 11px 8px 11px;
       border-radius: 8px;
-      text-align: left;
-      position: relative;
-      font-size: 15px;
+      font-size: 14.6px;
+      border: 1px solid #394c57cc;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 0;
+      box-shadow: 0 2px 8px 0 #101e3d18;
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+    .task:hover {
+      box-shadow: 0 4px 16px 0 #285b7042;
+    }
+    .task-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      min-height: 23px;
+      margin-bottom: 2px;
     }
     .task-number {
-      font-weight: bold;
-      color: #81d4fa;
-      margin-right: 8px;
-      font-size: 16px;
-    }
-    .video-title-row {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 0px;
-      margin-top: 2px;
+      font-weight: 600;
+      color: #53b2e7;
+      font-size: 15.5px;
+      margin-right: 4px;
+      flex-shrink: 0;
     }
     .video-title {
-      color: #ffe082;
-      font-size: 15.5px;
+      color: #ffecb3;
+      font-size: 15px;
       font-weight: 500;
-      overflow-wrap: anywhere;
-      flex: 1;
-      white-space: pre-line;
-      word-break: break-word;
-      margin-bottom: 2px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      flex: 1 1 auto;
+      margin: 0 5px 0 0;
+      max-width: 63vw;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .video-title a {
+      color: #b6d6ff;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .video-title a:hover {
+      color: #39d3ff;
+      text-decoration: underline;
     }
     .video-duration {
       font-size: 13px;
-      color: #bbdefb;
-      margin-left: 10px;
-      min-width: 52px;
-      text-align: right;
+      color: #6fcbfb;
+      margin-left: 4px;
       flex-shrink: 0;
+      font-weight: 400;
     }
     .progress {
-      height: 9px;
-      background: #444;
+      height: 6px;
+      background: #364050;
       border-radius: 4px;
       overflow: hidden;
-      min-width: 100px;
-      max-width: 100%;
-      margin-top: 4px;
-      margin-bottom: 6px;
+      margin-top: 2px;
+      margin-bottom: 3px;
+      width: 100%;
+      box-shadow: 0 0 2px 0 #24395e77;
     }
     .progress-bar {
       height: 100%;
       width: 0%;
-      background-color: #f1c40f;
+      background: linear-gradient(90deg, #4efbb6 40%, #ffe566 85%);
       transition: width 0.4s;
+      border-radius: 4px;
     }
     .task-btns {
       display: flex;
       justify-content: flex-end;
-      margin-top: 0px;
+      margin-top: 2px;
     }
     .main-btn {
-      min-width: 130px;
-      background: #2980b9;
+      min-width: 112px;
+      background: #237abb;
       color: #fff;
       border: none;
       border-radius: 5px;
-      font-size: 15px;
-      padding: 8px 0px;
+      font-size: 14px;
+      padding: 6px 0;
       cursor: pointer;
       text-align: center;
       font-weight: 500;
       margin-top: 0px;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
+      transition: background 0.19s;
     }
     .main-btn:hover {
-      background: #3498db;
+      background: #36b4e3;
     }
     .main-btn.done {
-      background: #2ecc71;
+      background: #6cd883;
       color: #fff;
       cursor: default;
     }
     .main-btn.error {
-      background: #e74c3c;
+      background: #ee5e52;
       color: #fff;
       cursor: default;
     }
     .main-btn.cancel {
-      background: #e74c3c;
+      background: #b2576d;
       color: #fff;
     }
     .download-link {
@@ -157,22 +183,22 @@
       font-weight: bold;
     }
     @media (max-width: 700px) {
-      .container { padding: 10px; }
-      .video-title-row { flex-direction: column; align-items: flex-start; gap: 3px; }
-      .video-duration { margin-left: 0; }
+      .container { padding: 8px; }
+      .task-row { flex-direction: column; align-items: flex-start; gap: 1px;}
+      .video-title { max-width: 91vw; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎵 YouTube to MP3</h1>
-    <p>Nhập link YouTube để tải MP3 (tối đa 5 task).</p>
+    <h1 style="font-size: 23px; margin-bottom: 13px;">🎵 YouTube to MP3</h1>
+    <p style="font-size: 14px; margin-bottom: 18px; color:#cef;">Nhập link YouTube để tải MP3 (tối đa 5 task).</p>
     <div class="input-row">
       <input type="text" id="url" placeholder="Dán link video YouTube...">
       <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
     </div>
     <button onclick="addTask()">Tải về</button>
-    <div id="taskList"></div>
+    <div class="tasklist" id="taskList"></div>
   </div>
   <script>
     let tasks = [];
@@ -202,11 +228,11 @@
         const div = document.createElement('div');
         div.className = 'task';
         div.innerHTML = `
-          <div class="video-title-row">
+          <div class="task-row">
             <span class="task-number">${index + 1}.</span>
             <span class="video-title">
               ${task.title
-                ? `<a href="${task.url}" class="download-link" target="_blank" title="${task.title}">${task.title}</a>`
+                ? `<a href="${task.url}" target="_blank" title="${task.title}">${task.title}</a>`
                 : `Đang lấy thông tin video...`}
             </span>
             <span class="video-duration">${task.duration ? secondsToHMS(task.duration) : ''}</span>
@@ -254,7 +280,7 @@
       urlInput.value = '';
       const task = {
         url, title: '', duration: '', status: 'processing',
-        progress: 5, link: null, downloaded: false,
+        progress: 7, link: null, downloaded: false,
         statusMsg: 'Đang khởi tạo...',
         errorMsg: null
       };
@@ -272,7 +298,6 @@
 
           const data = await res.json();
 
-          // Cập nhật info cho task (title/duration...)
           if (data.title) task.title = data.title;
           if (data.duration) task.duration = data.duration;
 
@@ -281,21 +306,21 @@
             task.link = `https://api.takeshi.dev${data.downloadLink}`;
             task.progress = 100;
             updateUI();
-            return; // DỪNG POLLING
+            return;
           }
           if (data.status === 'error') {
             task.status = 'error';
             task.progress = 100;
             task.errorMsg = data.error || 'Không rõ';
             updateUI();
-            return; // DỪNG POLLING
+            return;
           }
           // still processing
           task.status = 'processing';
           task.statusMsg = 'Đang xử lý trên máy chủ...';
-          if (task.progress < 95) {
-            task.progress += Math.random() * 3;
-            if (task.progress > 95) task.progress = 95;
+          if (task.progress < 93) {
+            task.progress += Math.random() * 2.5;
+            if (task.progress > 93) task.progress = 93;
           }
           updateUI();
           setTimeout(poll, 4000);
