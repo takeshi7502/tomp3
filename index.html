@@ -58,7 +58,7 @@
     .task {
       background: rgba(255, 255, 255, 0.1);
       margin-top: 12px;
-      padding: 10px 12px 8px 12px;
+      padding: 12px 16px 10px 16px;
       border-radius: 8px;
       text-align: left;
       position: relative;
@@ -67,43 +67,47 @@
       flex-direction: column;
       gap: 3px;
     }
-    .task-header {
+    .task-number {
+      font-weight: bold;
+      color: #81d4fa;
+      margin-right: 8px;
+      font-size: 16px;
+    }
+    .video-title-row {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
+      margin-bottom: 0px;
+      margin-top: 2px;
     }
     .video-title {
       color: #ffe082;
+      font-size: 15.5px;
       font-weight: 500;
-      font-size: 15px;
-      margin: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 310px;
-      display: inline-block;
+      overflow-wrap: anywhere;
+      flex: 1;
+      white-space: pre-line;
+      word-break: break-word;
+      margin-bottom: 2px;
     }
     .video-duration {
       font-size: 13px;
       color: #bbdefb;
-      margin-left: 6px;
-      display: inline-block;
-    }
-    .progress-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 5px;
+      margin-left: 10px;
+      min-width: 52px;
+      text-align: right;
+      flex-shrink: 0;
     }
     .progress {
       height: 9px;
-      flex: 1;
       background: #444;
       border-radius: 4px;
       overflow: hidden;
       min-width: 100px;
-      max-width: 320px;
+      max-width: 100%;
+      margin-top: 4px;
+      margin-bottom: 6px;
     }
     .progress-bar {
       height: 100%;
@@ -113,25 +117,39 @@
     }
     .task-btns {
       display: flex;
-      gap: 7px;
-      margin-left: 0;
+      justify-content: flex-end;
+      margin-top: 0px;
     }
-    .cancel-btn, .download-btn {
-      background: #e74c3c;
+    .main-btn {
+      min-width: 130px;
+      background: #2980b9;
       color: #fff;
       border: none;
       border-radius: 5px;
       font-size: 15px;
-      padding: 5px 12px;
+      padding: 8px 0px;
       cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+      margin-top: 0px;
+      margin-bottom: 2px;
     }
-    .download-btn {
-      background: #2980b9;
+    .main-btn:hover {
+      background: #3498db;
     }
-    .download-btn.downloaded {
+    .main-btn.done {
       background: #2ecc71;
       color: #fff;
       cursor: default;
+    }
+    .main-btn.error {
+      background: #e74c3c;
+      color: #fff;
+      cursor: default;
+    }
+    .main-btn.cancel {
+      background: #e74c3c;
+      color: #fff;
     }
     .download-link {
       color: #00ffcc;
@@ -140,9 +158,8 @@
     }
     @media (max-width: 700px) {
       .container { padding: 10px; }
-      .task-header { flex-direction: column; align-items: flex-start; }
-      .video-title { max-width: 170px; }
-      .progress-row { flex-direction: column; gap: 3px; align-items: flex-start; }
+      .video-title-row { flex-direction: column; align-items: flex-start; gap: 3px; }
+      .video-duration { margin-left: 0; }
     }
   </style>
 </head>
@@ -185,30 +202,32 @@
         const div = document.createElement('div');
         div.className = 'task';
 
-        // Task header: Tên (href), duration, trạng thái
+        // Hiển thị tên và thời gian cả khi đang tải, nếu chưa lấy được thì hiện tạm
         div.innerHTML = `
-          <div class="task-header">
-            <div>
+          <div class="video-title-row">
+            <span class="task-number">${index + 1}.</span>
+            <span class="video-title">
               ${task.title
-                ? `<a href="${task.url}" class="video-title" target="_blank" title="${task.title}">${task.title}</a>
-                   <span class="video-duration">${task.duration ? '(' + task.duration + ')' : ''}</span>`
-                : `<span class="video-title" style="color:#90caf9">Task ${index + 1}</span>`}
-            </div>
-            <div>${task.status}</div>
+                ? `<a href="${task.url}" class="download-link" target="_blank" title="${task.title}">${task.title}</a>`
+                : `Đang lấy thông tin video...`}
+            </span>
+            <span class="video-duration">${task.duration ? secondsToHMS(task.duration) : ''}</span>
           </div>
-          <div class="progress-row">
-            <div class="progress"><div class="progress-bar" style="width: ${task.progress}%"></div></div>
-            <div class="task-btns">
-              ${
-                !task.done
-                  ? `<button class="cancel-btn" onclick="cancelTask(${index})">❌ Hủy</button>`
+          <div class="progress">
+            <div class="progress-bar" style="width: ${task.progress}%"></div>
+          </div>
+          <div class="task-btns">
+            ${
+              !task.done
+                ? `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy (${task.status || 'Đang tải...'})</button>`
+                : task.error
+                  ? `<button class="main-btn error" disabled>❌ Lỗi (${task.status})</button>`
                   : !task.downloaded
                     ? `<a class="download-link" href="${task.link}" download>
-                          <button class="download-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống</button>
-                       </a>`
-                    : `<button class="download-btn downloaded" disabled>✅ Đã tải xong</button>`
-              }
-            </div>
+                        <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống (${task.status})</button>
+                      </a>`
+                    : `<button class="main-btn done" disabled>✅ Đã tải xong</button>`
+            }
           </div>
         `;
         list.appendChild(div);
@@ -235,7 +254,7 @@
       if (tasks.length >= 5) return alert('Chỉ được tải tối đa 5 video cùng lúc.');
 
       urlInput.value = '';
-      const task = { url, title: '', duration: '', status: '⏳ Đang xử lý...', progress: 0, link: null, done: false, downloaded: false };
+      const task = { url, title: '', duration: '', status: 'Đang tải...', progress: 0, link: null, done: false, downloaded: false, error: false };
       tasks.push(task);
       updateUI();
 
@@ -257,16 +276,17 @@
         if (!res.ok) throw new Error('Lỗi');
         const data = await res.json();
 
-        task.status = '✅ Hoàn tất!';
+        task.status = 'Hoàn tất!';
         task.link = `https://api.takeshi.dev${data.downloadLink}`;
         task.progress = 100;
         task.done = true;
         if (data.title) task.title = data.title;
-        if (data.duration) task.duration = secondsToHMS(data.duration);
+        if (data.duration) task.duration = data.duration;
       } catch (err) {
-        task.status = '❌ Lỗi khi xử lý!';
+        task.status = 'Lỗi khi xử lý!';
         task.progress = 100;
         task.done = true;
+        task.error = true;
       }
 
       clearInterval(interval);
