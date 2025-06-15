@@ -236,6 +236,98 @@
       transition: background 0.16s;
       line-height: 1.2;
     }
+.suggest-box {
+  position: absolute;
+  left: 0; right: 0;
+  top: 102%; z-index: 1000;
+  background: #1a2533f8;
+  border-radius: 0 0 8px 8px;
+  list-style: none;
+  padding: 0; margin: 2px 0 0 0;
+  box-shadow: 0 3px 12px #2229;
+  max-height: 210px;
+  overflow-y: auto;
+  border: 1px solid #2980b9;
+  width: 100%;
+}
+.suggest-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 7px 9px 6px 7px;
+  font-size: 13px;
+  color: #fff;
+  transition: background 0.12s;
+}
+.suggest-item:hover {
+  background: #215078;
+}
+.suggest-thumb {
+  width: 48px; height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  border: 1px solid #234052;
+}
+.suggest-title {
+  flex: 1;
+  font-size: 13px;
+  color: #d5ebff;
+  white-space: normal;
+  line-height: 1.28;
+  word-break: break-word;
+}
+.input-row-wrap {
+  position: relative;
+}
+.suggest-box {
+  position: absolute;
+  left: 0; right: 0;
+  top: 102%; z-index: 1000;
+  background: #1a2533f8;
+  border-radius: 0 0 8px 8px;
+  list-style: none;
+  padding: 0; margin: 2px 0 0 0;
+  box-shadow: 0 3px 12px #2229;
+  max-height: 210px;
+  overflow-y: auto;
+  border: 1px solid #2980b9;
+  width: 100%;
+}
+.suggest-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 7px 9px 6px 7px;
+  font-size: 13px;
+  color: #fff;
+  transition: background 0.12s;
+}
+.suggest-item:hover {
+  background: #215078;
+}
+.suggest-thumb {
+  width: 48px; height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  border: 1px solid #234052;
+}
+.suggest-title {
+  flex: 1;
+  font-size: 13px;
+  color: #d5ebff;
+  white-space: normal;
+  line-height: 1.28;
+  word-break: break-word;
+}
+.input-row-wrap {
+  position: relative;
+}
+
+
     .main-btn:hover { background: #36b4e3; }
     .main-btn.done { background: #6cd883; color: #fff; cursor: default;}
     .main-btn.error { background: #ee5e52; color: #fff; cursor: default;}
@@ -268,6 +360,7 @@
         <div class="input-row">
           <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
           <input type="text" id="url" placeholder="Dán link video YouTube...">
+          <ul id="suggestBox" class="suggest-box" style="display:none"></ul>
           <button class="download-btn" onclick="addTask()">Tải về</button>
         </div>
       </div>
@@ -425,6 +518,59 @@
       }
       poll();
     }
+
+    let suggestTimeout = null;
+    const input = document.getElementById('url');
+    const suggestBox = document.getElementById('suggestBox');
+
+    input.addEventListener('input', function(e) {
+      const val = input.value.trim();
+      // Nếu là link youtube hoặc quá ngắn thì ẩn box gợi ý luôn
+      if (isValidYoutubeURL(val) || val.length < 2) {
+        suggestBox.style.display = 'none';
+        suggestBox.innerHTML = '';
+        return;
+      }
+      // Gọi API search sau 250ms (debounce)
+      if (suggestTimeout) clearTimeout(suggestTimeout);
+      suggestTimeout = setTimeout(() => {
+        fetch('/search?q=' + encodeURIComponent(val))
+          .then(r => r.json())
+          .then(list => {
+            if (!list || !Array.isArray(list) || list.length === 0) {
+              suggestBox.style.display = 'none';
+              suggestBox.innerHTML = '';
+              return;
+            }
+            suggestBox.innerHTML = list.map(v => `
+              <li class="suggest-item" data-url="${v.url.replace(/"/g, "&quot;")}">
+                <img class="suggest-thumb" src="${v.thumbnail}" loading="lazy">
+                <span class="suggest-title">${v.title}</span>
+              </li>
+            `).join('');
+            suggestBox.style.display = 'block';
+          });
+      }, 250);
+    });
+
+    // Khi click suggestion, điền link, ẩn box, auto tải luôn
+    suggestBox.addEventListener('click', function(e) {
+      let li = e.target.closest('.suggest-item');
+      if (!li) return;
+      input.value = li.getAttribute('data-url');
+      suggestBox.style.display = 'none';
+      suggestBox.innerHTML = '';
+      addTask();
+    });
+    input.addEventListener('blur', function() {
+      setTimeout(() => {
+        suggestBox.style.display = 'none';
+        suggestBox.innerHTML = '';
+      }, 220);
+    });
+    input.addEventListener('focus', function() {
+      if (suggestBox.innerHTML) suggestBox.style.display = 'block';
+    });
   </script>
 </body>
 </html>
