@@ -313,6 +313,17 @@
     if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
+  function formatDuration(secs) {
+    secs = Math.round(secs);
+    let h = Math.floor(secs / 3600);
+    let m = Math.floor((secs % 3600) / 60);
+    let s = secs % 60;
+    let arr = [];
+    if (h > 0) arr.push(h + ' giờ');
+    if (m > 0) arr.push(m + ' phút');
+    if (s > 0 || arr.length === 0) arr.push(s + ' giây');
+    return arr.join(' ');
+  }
   async function pasteClipboard() {
     try {
       const text = await navigator.clipboard.readText();
@@ -343,12 +354,12 @@
     tasks.forEach((task, index) => {
       let timeStr = '';
       if (task.status === 'done' && task.startTime && task.finishTime) {
-        let secs = Math.round((task.finishTime - task.startTime) / 1000);
+        let secs = (task.finishTime - task.startTime) / 1000;
         if (secs < 0) secs = 0;
-        timeStr = `<span style="color:#8fc;"> (Hoàn tất trong ${secs} giây)</span>`;
+        timeStr = `<span style="color:#8fc;"> (Hoàn tất trong ${formatDuration(secs)})</span>`;
       } else if (task.status === 'processing' && task.startTime) {
-        let secs = Math.round((Date.now() - task.startTime) / 1000);
-        timeStr = `<span style="color:#bbb; font-size:11px;"> (${secs} giây)</span>`;
+        let secs = (Date.now() - task.startTime) / 1000;
+        timeStr = `<span style="color:#bbb; font-size:11px;"> (${formatDuration(secs)})</span>`;
       }
       const div = document.createElement('div');
       div.className = 'task';
@@ -389,7 +400,17 @@
       list.appendChild(div);
     });
   }
-  function cancelTask(index) { tasks.splice(index, 1); updateUI(); }
+  function cancelTask(index) {
+    const task = tasks[index];
+    // Gửi request hủy job cho backend (nếu cần)
+    fetch('https://api.takeshi.dev/cancel', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ url: task.url })
+    });
+    tasks.splice(index, 1);
+    updateUI();
+  }
   function markDownloaded(index, event) {
     setTimeout(() => {
       tasks[index].downloaded = true;
@@ -407,8 +428,7 @@
     // Nếu là từ search video thì kiểm tra trùng
     if (videoId) {
       if (tasks.find(t => t.url.includes(videoId))) {
-        // Gọi showWarn dưới đúng video đó
-        showWarnUnderVideo(videoId);
+        showWarnUnderVideo(videoId, "Video này đã có trong danh sách tải!");
         return;
       }
     }
@@ -490,9 +510,11 @@
           <img class="video-result-thumb" src="${v.thumbnail}" loading="lazy">
           <div class="video-result-info">
             <div class="video-result-title">${v.title}</div>
-            <div class="video-result-duration">${secondsToHMS(v.duration)}</div>
+            <div class="video-result-duration">
+              ${v.isLive ? '<span style="color:#ff5252;font-weight:600;">Trực tiếp</span>' : secondsToHMS(v.duration)}
+            </div>
           </div>
-          <button class="download-btn video-result-download" onclick="addTask('${v.url}','${v.id}')">
+          <button class="download-btn video-result-download" ${v.isLive ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="tryAddTask('${v.url}','${v.id}',${!!v.isLive})">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </button>
           <div class="video-warn" id="warn_${v.id}" style="display:none;color:#ffaaaa; font-size:12px; margin-top:2px;"></div>
@@ -502,12 +524,20 @@
       searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không thể tìm kiếm lúc này.</li>`;
     }
   }
+  // Wrapper: Nếu là live, báo "Không thể tải video trực tiếp!"
+  function tryAddTask(url, videoId, isLive) {
+    if (isLive) {
+      showWarnUnderVideo(videoId, "Không thể tải video trực tiếp!");
+      return;
+    }
+    addTask(url, videoId);
+  }
   // Show cảnh báo ngay dưới video đã có trong danh sách tải
-  function showWarnUnderVideo(videoId) {
+  function showWarnUnderVideo(videoId, msg="Video này đã có trong danh sách tải!") {
     if (activeWarn[videoId]) return;
     const warnDiv = document.getElementById('warn_' + videoId);
     if (warnDiv) {
-      warnDiv.textContent = "Video này đã có trong danh sách tải!";
+      warnDiv.textContent = msg;
       warnDiv.style.display = "block";
       activeWarn[videoId] = true;
       setTimeout(() => {
@@ -523,6 +553,7 @@
     if (e.key === 'Enter') searchVideo();
   });
   </script>
+
 
 </body>
 </html>
