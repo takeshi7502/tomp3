@@ -21,7 +21,7 @@
       margin: 24px auto 0 auto;
       box-shadow: 0 3px 20px 0 #0e27346a;
       padding: 0 0 14px 0;
-      width: 95vw;
+      width: 97vw;
     }
     .header-box {
       position: sticky;
@@ -37,10 +37,10 @@
       font-size: 18px;
       margin-bottom: 3px;
       margin-top: 2px;
-      text-align: center;
       font-weight: 600;
       letter-spacing: 0.2px;
       text-shadow: 0 1px 7px #212d3a66;
+      text-align: center;
     }
     .desc-app {
       font-size: 13px;
@@ -65,47 +65,44 @@
       max-width: 360px;
       width: 100%;
       margin: 0 auto;
+      box-sizing: border-box;
+      box-shadow: 0 1px 5px #1a365599;
     }
     input[type="text"] {
       padding: 8px 7px 8px 7px;
       border: none;
       border-radius: 5px;
       font-size: 14px;
-      width: 170px;
-      min-width: 65px;
-      max-width: 240px;
+      min-width: 40px;
+      max-width: 180px;
       background: #1e2a3c;
       color: #fff;
-      flex: 1 1 auto;
+      flex: 1 1 0%;
       outline: none;
       margin: 0;
       transition: box-shadow 0.15s;
     }
+    .paste-btn,
+    .download-btn {
+      min-width: unset;
+      width: auto;
+      padding: 7px 11px;
+      font-size: 13px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
     .paste-btn {
       background-color: #2980b9;
       color: #fff;
-      padding: 7px 9px 7px 9px;
-      border: none;
-      border-radius: 5px;
-      font-size: 13px;
-      cursor: pointer;
-      margin-right: 0;
       margin-left: 0;
-      min-width: 33px;
-      transition: background 0.15s;
     }
     .paste-btn:hover { background-color: #3498db;}
     .download-btn {
       background-color: #27ae60;
       color: white;
-      padding: 7px 13px;
-      border: none;
-      border-radius: 5px;
-      font-size: 13px;
-      cursor: pointer;
       margin-left: 0;
-      min-width: 68px;
-      transition: background 0.15s;
     }
     .download-btn:hover { background-color: #2ecc71;}
     .input-error {
@@ -244,13 +241,12 @@
     .main-btn.error { background: #ee5e52; color: #fff; cursor: default;}
     .main-btn.cancel { background: #b2576d; color: #fff;}
     .download-link { color: #00ffcc; text-decoration: none; font-weight: bold;}
-    @media (max-width: 480px) {
-      .container { padding: 0; max-width: 99vw;}
-      .desc-app { padding: 0 3vw; }
-      .input-row { max-width: 97vw;}
-      input[type="text"] { font-size: 12.5px; min-width: 0; max-width: 120px;}
-      .download-btn { font-size: 12px; padding: 7px 7px;}
-      .paste-btn { font-size: 12px; padding: 7px 7px;}
+    @media (max-width: 500px) {
+      .container { max-width: 99vw; }
+      .desc-app { padding: 0 4vw; }
+      .input-row { max-width: 98vw; padding: 2px 2vw;}
+      input[type="text"] { font-size: 12px; max-width: 80px;}
+      .download-btn, .paste-btn { font-size: 12px; padding: 7px 7px;}
       .tasklist { margin: 7px 2px 0 2px;}
       .task-status-txt { max-width: 33vw;}
       .video-title { font-size: 12.3px;}
