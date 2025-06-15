@@ -8,44 +8,44 @@
       font-family: 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(to right, #232526, #4ca1af);
       color: #fff;
-      padding: 24px 0;
+      padding: 10px 0;
       text-align: center;
       min-height: 100vh;
     }
     .container {
-      background: rgba(10,20,40,0.58);
-      padding: 26px 12px 18px 12px;
-      border-radius: 14px;
-      width: 98%;
-      max-width: 470px;
-      margin: 24px auto;
-      box-shadow: 0 4px 18px 0 #0e27344a;
+      background: rgba(10,20,40,0.56);
+      padding: 15px 6px 12px 6px;
+      border-radius: 11px;
+      width: 99%;
+      max-width: 420px;
+      margin: 14px auto;
+      box-shadow: 0 2px 10px 0 #0e27344a;
     }
     .input-row {
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 7px;
     }
     input[type="text"] {
-      padding: 11px;
+      padding: 8px;
       flex: 1;
       border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      width: 92%;
+      border-radius: 5px;
+      font-size: 13.5px;
+      width: 93%;
       outline: none;
     }
     button {
       background-color: #27ae60;
       color: white;
       border: none;
-      padding: 11px 23px;
-      border-radius: 6px;
+      padding: 9px 17px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 15px;
-      margin-top: 9px;
+      font-size: 13px;
+      margin-top: 4px;
       transition: background 0.17s;
     }
     button:hover {
@@ -53,112 +53,148 @@
     }
     .paste-btn {
       background-color: #2980b9;
-      padding: 11px 13px;
+      padding: 9px 9px;
       margin-top: 0;
+      font-size: 13px;
     }
     .paste-btn:hover {
       background-color: #3498db;
     }
+    .input-error {
+      color: #ffcdd2;
+      background: #38040d33;
+      border-radius: 3px;
+      font-size: 12px;
+      padding: 3px 0 2px 0;
+      margin-bottom: 1px;
+      margin-top: 0px;
+      min-height: 18px;
+    }
     .tasklist {
-      margin-top: 10px;
+      margin-top: 8px;
     }
     .task {
-      background: rgba(255,255,255,0.08);
-      margin-bottom: 9px;
-      padding: 7px 11px 8px 11px;
-      border-radius: 8px;
-      font-size: 14.6px;
-      border: 1px solid #394c57cc;
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 6px;
+      padding: 4px 6px 4px 6px;
+      border-radius: 6px;
+      font-size: 13.2px;
+      border: 1px solid #394c5799;
       display: flex;
       flex-direction: column;
-      gap: 0;
-      box-shadow: 0 2px 8px 0 #101e3d18;
+      box-shadow: 0 1px 5px 0 #101e3d11;
       position: relative;
-      transition: box-shadow 0.2s;
+      min-height: 35px;
+      max-width: 100vw;
+      gap: 0;
+      transition: box-shadow 0.16s;
     }
     .task:hover {
-      box-shadow: 0 4px 16px 0 #285b7042;
+      box-shadow: 0 2px 10px 0 #285b7042;
     }
     .task-row {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 7px;
-      min-height: 23px;
-      margin-bottom: 2px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 5px;
+      margin-bottom: 0px;
+      min-height: 18px;
     }
     .task-number {
       font-weight: 600;
       color: #53b2e7;
-      font-size: 15.5px;
-      margin-right: 4px;
+      font-size: 13.4px;
+      margin-right: 2px;
       flex-shrink: 0;
+      margin-top: 3px;
     }
     .video-title {
-      color: #ffecb3;
-      font-size: 15px;
+      color: #ffe082;
+      font-size: 13.2px;
       font-weight: 500;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      margin: 0 3px 0 0;
+      text-align: left;
+      word-break: break-word;
       flex: 1 1 auto;
-      margin: 0 5px 0 0;
-      max-width: 63vw;
-      display: inline-block;
-      vertical-align: bottom;
+      min-width: 0;
+      line-height: 1.32;
+      display: block;
+      margin-top: 1px;
     }
     .video-title a {
       color: #b6d6ff;
       text-decoration: none;
       transition: color 0.2s;
+      word-break: break-word;
+      line-height: 1.33;
     }
     .video-title a:hover {
       color: #39d3ff;
       text-decoration: underline;
     }
     .video-duration {
-      font-size: 13px;
-      color: #6fcbfb;
+      font-size: 12px;
+      color: #7ec5e6;
       margin-left: 4px;
+      margin-top: 3px;
       flex-shrink: 0;
       font-weight: 400;
+      min-width: 34px;
+      text-align: right;
     }
     .progress {
-      height: 6px;
+      height: 5px;
       background: #364050;
-      border-radius: 4px;
+      border-radius: 3px;
       overflow: hidden;
-      margin-top: 2px;
-      margin-bottom: 3px;
+      margin: 2px 0 2px 0;
       width: 100%;
-      box-shadow: 0 0 2px 0 #24395e77;
+      box-shadow: 0 0 1px 0 #24395e44;
     }
     .progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #4efbb6 40%, #ffe566 85%);
-      transition: width 0.4s;
-      border-radius: 4px;
+      background: linear-gradient(90deg, #4efbb6 45%, #ffe566 85%);
+      transition: width 0.3s;
+      border-radius: 3px;
     }
-    .task-btns {
+    .task-action-row {
       display: flex;
+      flex-direction: row;
+      align-items: center;
       justify-content: flex-end;
+      gap: 8px;
       margin-top: 2px;
     }
+    .task-status-txt {
+      font-size: 12px;
+      color: #ffe582;
+      margin-left: 2px;
+      font-weight: 400;
+      flex: 1 1 auto;
+      text-align: left;
+      margin-bottom: 1px;
+      margin-right: 6px;
+      line-height: 1.23;
+      word-break: break-word;
+      max-width: 55vw;
+      min-width: 32px;
+    }
     .main-btn {
-      min-width: 112px;
+      min-width: 90px;
       background: #237abb;
       color: #fff;
       border: none;
-      border-radius: 5px;
-      font-size: 14px;
-      padding: 6px 0;
+      border-radius: 4px;
+      font-size: 12.6px;
+      padding: 5px 0;
       cursor: pointer;
       text-align: center;
       font-weight: 500;
       margin-top: 0px;
-      margin-bottom: 1px;
-      transition: background 0.19s;
+      margin-bottom: 0;
+      transition: background 0.16s;
+      line-height: 1.2;
     }
     .main-btn:hover {
       background: #36b4e3;
@@ -182,26 +218,40 @@
       text-decoration: none;
       font-weight: bold;
     }
-    @media (max-width: 700px) {
-      .container { padding: 8px; }
-      .task-row { flex-direction: column; align-items: flex-start; gap: 1px;}
-      .video-title { max-width: 91vw; }
+    @media (max-width: 480px) {
+      .container { padding: 4px; }
+      .video-title { font-size: 12.5px;}
+      .task-status-txt { max-width: 35vw;}
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 style="font-size: 23px; margin-bottom: 13px;">🎵 YouTube to MP3</h1>
-    <p style="font-size: 14px; margin-bottom: 18px; color:#cef;">Nhập link YouTube để tải MP3 (tối đa 5 task).</p>
+    <h1 style="font-size: 17px; margin-bottom: 7px;">🎵 YouTube to MP3</h1>
+    <p style="font-size: 12px; margin-bottom: 9px; color:#cef;">Nhập link YouTube để tải MP3 (tối đa 5 link đang tải).</p>
     <div class="input-row">
       <input type="text" id="url" placeholder="Dán link video YouTube...">
       <button type="button" class="paste-btn" onclick="pasteClipboard()" title="Dán nhanh">📋</button>
     </div>
+    <div id="inputError" class="input-error"></div>
     <button onclick="addTask()">Tải về</button>
     <div class="tasklist" id="taskList"></div>
   </div>
   <script>
     let tasks = [];
+
+    // Youtube link regex chuẩn (hỗ trợ full các dạng)
+    function isValidYoutubeURL(url) {
+      return /^(https?\:\/\/)?(www\.|m\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);
+    }
+
+    function showInputError(msg) {
+      document.getElementById('inputError').textContent = msg || '';
+    }
+
+    function clearInputError() {
+      showInputError('');
+    }
 
     function secondsToHMS(seconds) {
       if (!seconds || isNaN(seconds)) return '';
@@ -219,6 +269,10 @@
       } catch (err) {
         alert('Không thể dán: Trình duyệt bị chặn hoặc không hỗ trợ.');
       }
+    }
+
+    function getProcessingTaskCount() {
+      return tasks.filter(t => t.status === 'processing').length;
     }
 
     function updateUI() {
@@ -240,17 +294,24 @@
           <div class="progress">
             <div class="progress-bar" style="width: ${task.progress}%"></div>
           </div>
-          <div class="task-btns">
+          <div class="task-action-row">
+            <span class="task-status-txt">
+              ${
+                task.status === 'done' ? 'Hoàn tất!' :
+                task.status === 'error' ? `Lỗi: ${task.errorMsg || 'Không rõ'}` :
+                task.status === 'processing' ? (task.statusMsg || 'Đang xử lý...') : ''
+              }
+            </span>
             ${
               task.status === 'done'
                 ? (!task.downloaded
                     ? `<a class="download-link" href="${task.link}" download>
-                        <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống (Hoàn tất!)</button>
+                        <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống</button>
                       </a>`
                     : `<button class="main-btn done" disabled>✅ Đã tải xong</button>`)
                 : task.status === 'error'
-                  ? `<button class="main-btn error" disabled>❌ Lỗi (${task.errorMsg || 'Không rõ'})</button>`
-                  : `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy (${task.statusMsg || 'Đang tải...'})</button>`
+                  ? `<button class="main-btn error" disabled>Đóng</button>`
+                  : `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy</button>`
             }
           </div>
         `;
@@ -272,12 +333,24 @@
     }
 
     async function addTask() {
+      clearInputError();
       const urlInput = document.getElementById('url');
       const url = urlInput.value.trim();
-      if (!url) return alert('Vui lòng nhập link!');
-      if (tasks.length >= 5) return alert('Chỉ được tải tối đa 5 video cùng lúc.');
+      if (!url) {
+        showInputError('Vui lòng nhập link!');
+        return;
+      }
+      if (!isValidYoutubeURL(url)) {
+        showInputError('Vui lòng nhập đúng link YouTube!');
+        return;
+      }
+      if (getProcessingTaskCount() >= 5) {
+        showInputError('Chỉ được tải tối đa 5 link cùng lúc. Vui lòng chờ!');
+        return;
+      }
 
       urlInput.value = '';
+      clearInputError();
       const task = {
         url, title: '', duration: '', status: 'processing',
         progress: 7, link: null, downloaded: false,
@@ -318,9 +391,9 @@
           // still processing
           task.status = 'processing';
           task.statusMsg = 'Đang xử lý trên máy chủ...';
-          if (task.progress < 93) {
-            task.progress += Math.random() * 2.5;
-            if (task.progress > 93) task.progress = 93;
+          if (task.progress < 92) {
+            task.progress += Math.random() * 2.1;
+            if (task.progress > 92) task.progress = 92;
           }
           updateUI();
           setTimeout(poll, 4000);
