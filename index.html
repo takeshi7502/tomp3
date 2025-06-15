@@ -201,8 +201,6 @@
       tasks.forEach((task, index) => {
         const div = document.createElement('div');
         div.className = 'task';
-
-        // Hiển thị tên và thời gian cả khi đang tải, nếu chưa lấy được thì hiện tạm
         div.innerHTML = `
           <div class="video-title-row">
             <span class="task-number">${index + 1}.</span>
@@ -218,15 +216,15 @@
           </div>
           <div class="task-btns">
             ${
-              !task.done
-                ? `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy (${task.status || 'Đang tải...'})</button>`
-                : task.error
-                  ? `<button class="main-btn error" disabled>❌ Lỗi (${task.status})</button>`
-                  : !task.downloaded
+              task.status === 'done'
+                ? (!task.downloaded
                     ? `<a class="download-link" href="${task.link}" download>
-                        <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống (${task.status})</button>
+                        <button class="main-btn" onclick="markDownloaded(${index}, event)">🎧 Tải xuống (Hoàn tất!)</button>
                       </a>`
-                    : `<button class="main-btn done" disabled>✅ Đã tải xong</button>`
+                    : `<button class="main-btn done" disabled>✅ Đã tải xong</button>`)
+                : task.status === 'error'
+                  ? `<button class="main-btn error" disabled>❌ Lỗi (${task.errorMsg || 'Không rõ'})</button>`
+                  : `<button class="main-btn cancel" onclick="cancelTask(${index})">❌ Hủy (${task.statusMsg || 'Đang tải...'})</button>`
             }
           </div>
         `;
@@ -254,43 +252,61 @@
       if (tasks.length >= 5) return alert('Chỉ được tải tối đa 5 video cùng lúc.');
 
       urlInput.value = '';
-      const task = { url, title: '', duration: '', status: 'Đang tải...', progress: 0, link: null, done: false, downloaded: false, error: false };
+      const task = {
+        url, title: '', duration: '', status: 'processing',
+        progress: 5, link: null, downloaded: false,
+        statusMsg: 'Đang khởi tạo...',
+        errorMsg: null
+      };
       tasks.push(task);
       updateUI();
 
-      const interval = setInterval(() => {
-        if (task.progress < 90) {
-          task.progress += Math.random() * 5;
-          if (task.progress > 90) task.progress = 90;
+      // Polling logic
+      async function poll() {
+        try {
+          const res = await fetch('https://api.takeshi.dev/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+          });
+
+          const data = await res.json();
+
+          // Cập nhật info cho task (title/duration...)
+          if (data.title) task.title = data.title;
+          if (data.duration) task.duration = data.duration;
+
+          if (data.status === 'done') {
+            task.status = 'done';
+            task.link = `https://api.takeshi.dev${data.downloadLink}`;
+            task.progress = 100;
+            updateUI();
+            return;
+          }
+          if (data.status === 'error') {
+            task.status = 'error';
+            task.progress = 100;
+            task.errorMsg = data.error || 'Không rõ';
+            updateUI();
+            return;
+          }
+          // still processing
+          task.status = 'processing';
+          task.statusMsg = 'Đang xử lý trên máy chủ...';
+          // tăng progress ảo lên 95
+          if (task.progress < 95) {
+            task.progress += Math.random() * 3;
+            if (task.progress > 95) task.progress = 95;
+          }
+          updateUI();
+          setTimeout(poll, 4000);
+        } catch (err) {
+          task.status = 'error';
+          task.errorMsg = 'Lỗi kết nối tới server!';
           updateUI();
         }
-      }, 500);
-
-      try {
-        const res = await fetch('https://api.takeshi.dev/download', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        });
-
-        if (!res.ok) throw new Error('Lỗi');
-        const data = await res.json();
-
-        task.status = 'Hoàn tất!';
-        task.link = `https://api.takeshi.dev${data.downloadLink}`;
-        task.progress = 100;
-        task.done = true;
-        if (data.title) task.title = data.title;
-        if (data.duration) task.duration = data.duration;
-      } catch (err) {
-        task.status = 'Lỗi khi xử lý!';
-        task.progress = 100;
-        task.done = true;
-        task.error = true;
       }
-
-      clearInterval(interval);
-      updateUI();
+      poll();
     }
   </script>
 </body>
