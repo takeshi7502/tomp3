@@ -189,6 +189,22 @@
       font-size: 12px; color: #7ec5e6; margin-left: 4px; margin-top: 3px;
       flex-shrink: 0; font-weight: 400; min-width: 34px; text-align: right;
     }
+    /* THÊM MỚI CSS */
+    .video-result-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3px;
+    }
+
+    .video-result-channel-info {
+      font-size: 11.5px;
+      color: #c1d5e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px; /* Giới hạn chiều rộng để không bị vỡ layout */
+    }
     .progress {
       height: 5px;
       background: #364050;
@@ -324,6 +340,24 @@
     if (m > 0) arr.push(m + ' phút');
     if (s > 0 || arr.length === 0) arr.push(s + ' giây');
     return arr.join(' ');
+  }
+  // THÊM MỚI JAVASCRIPT
+  function formatTimeAgo(isoString) {
+    const date = new Date(isoString);
+    const now = new Date();
+    const seconds = Math.round((now - date) / 1000);
+    const minutes = Math.round(seconds / 60);
+    const hours = Math.round(minutes / 60);
+    const days = Math.round(hours / 24);
+    const months = Math.round(days / 30.44);
+    const years = Math.round(days / 365.25);
+
+    if (seconds < 60) return "vài giây trước";
+    if (minutes < 60) return `${minutes} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    if (days < 30) return `${days} ngày trước`;
+    if (months < 12) return `${months} tháng trước`;
+    return `${years} năm trước`;
   }
   async function pasteClipboard() {
     try {
@@ -506,16 +540,21 @@
         searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không tìm thấy video nào.</li>`;
         return;
       }
-      searchResults.innerHTML = list.slice(0,10).map(v => `
+      searchResults.innerHTML = list.slice(0, 10).map(v => `
         <li class="video-result-item" id="video_${v.id}">
           <img class="video-result-thumb" src="${v.thumbnail}" loading="lazy">
           <div class="video-result-info">
             <div class="video-result-title">${v.title}</div>
-            <div class="video-result-duration">
-              ${v.isLive ? '<span style="color:#ff5252;font-weight:600;">Trực tiếp</span>' : secondsToHMS(v.duration)}
+            <div class="video-result-meta">
+              <span class="video-result-channel-info" title="${v.channelTitle} - ${formatTimeAgo(v.publishedAt)}">
+                ${v.channelTitle} - ${formatTimeAgo(v.publishedAt)}
+              </span>
+              <span class="video-result-duration">
+                ${v.isLive ? '<span style="color:#ff5252;font-weight:600;">Trực tiếp</span>' : secondsToHMS(v.duration)}
+              </span>
             </div>
           </div>
-          <button class="download-btn video-result-download" ${v.isLive ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="tryAddTask('${v.url}','${v.id}',${!!v.isLive})">
+          <button class="download-btn video-result-download" ${v.isLive ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''} onclick="tryAddTask('https://www.youtube.com/watch?v=${v.id}','${v.id}',${!!v.isLive})">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </button>
           <div class="video-warn" id="warn_${v.id}" style="display:none;color:#ffaaaa; font-size:12px; margin-top:2px;"></div>
