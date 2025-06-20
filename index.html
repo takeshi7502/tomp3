@@ -398,7 +398,7 @@
           }
         </div>
       `;
-      list.appendChild(div);
+      list.prepend(div);
     });
   }
   function cancelTask(index) {
@@ -526,19 +526,25 @@
     }
   }
   // Wrapper: Nếu là live, báo "Không thể tải video trực tiếp!"
+  // CODE MỚI
   function tryAddTask(url, videoId, isLive) {
     if (isLive) {
       showWarnUnderVideo(videoId, "Không thể tải video trực tiếp!");
       return;
     }
+    // Thêm dòng này để hiện thông báo
+    showWarnUnderVideo(videoId, "Đang bắt đầu tải xuống...", "#a2f2bd"); // Màu xanh lá cây nhạt
     addTask(url, videoId);
   }
   // Show cảnh báo ngay dưới video đã có trong danh sách tải
-  function showWarnUnderVideo(videoId, msg="Video này đã có trong danh sách tải!") {
-    if (activeWarn[videoId]) return;
+  // CODE MỚI
+  function showWarnUnderVideo(videoId, msg = "Video này đã có trong danh sách tải!", color = '#ffaaaa') { // Thêm color
+    if (activeWarn[videoId])
+      return;
     const warnDiv = document.getElementById('warn_' + videoId);
     if (warnDiv) {
       warnDiv.textContent = msg;
+      warnDiv.style.color = color; // Thêm dòng này
       warnDiv.style.display = "block";
       activeWarn[videoId] = true;
       setTimeout(() => {
