@@ -189,21 +189,19 @@
       font-size: 12px; color: #7ec5e6; margin-left: 4px; margin-top: 3px;
       flex-shrink: 0; font-weight: 400; min-width: 34px; text-align: right;
     }
-    /* THÊM MỚI CSS */
     .video-result-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-top: 3px;
     }
-
     .video-result-channel-info {
       font-size: 11.5px;
       color: #c1d5e0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 150px; /* Giới hạn chiều rộng để không bị vỡ layout */
+      max-width: 150px;
     }
     .progress {
       height: 5px;
@@ -266,7 +264,6 @@
       min-height: 16px;
     }
     .video-result-download svg { vertical-align: middle; }
-
     .main-btn:hover { background: #36b4e3; }
     .main-btn.done { background: #6cd883; color: #fff; cursor: default;}
     .main-btn.error { background: #ee5e52; color: #fff; cursor: default;}
@@ -313,7 +310,7 @@
   </div>
   <script>
   let tasks = [];
-  let activeWarn = {}; // Map videoId -> true nếu đang cảnh báo "đã có"
+  let activeWarn = {}; // Map videoId -> true nếu đang cảnh báo
 
   function isValidYoutubeURL(url) {
     return /^(https?\:\/\/)?(www\.|m\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url);
@@ -341,7 +338,6 @@
     if (s > 0 || arr.length === 0) arr.push(s + ' giây');
     return arr.join(' ');
   }
-  // THÊM MỚI JAVASCRIPT
   function formatTimeAgo(isoString) {
     const date = new Date(isoString);
     const now = new Date();
@@ -371,7 +367,6 @@
     return tasks.filter(t => t.status === 'processing').length;
   }
   function updateUI() {
-    // Task title
     const listCol = document.querySelector('.task-list-col');
     let taskTitle = document.getElementById('taskListTitle');
     if (!taskTitle) {
@@ -383,7 +378,6 @@
     taskTitle.innerHTML = "Đang tải xuống";
     taskTitle.style.display = (tasks.length > 0) ? 'block' : 'none';
 
-    // Task list
     const list = document.getElementById('taskList');
     list.innerHTML = '';
     tasks.forEach((task, index) => {
@@ -437,7 +431,6 @@
   }
   function cancelTask(index) {
     const task = tasks[index];
-    // Gửi request hủy job cho backend (nếu cần)
     fetch('https://api.takeshi.dev/cancel', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -460,10 +453,9 @@
     if (!url) { showInputError('Vui lòng nhập link!'); return; }
     if (!isValidYoutubeURL(url)) { showInputError('Vui lòng nhập đúng link YouTube!'); return; }
     if (getProcessingTaskCount() >= 5) { showInputError('Chỉ được tải tối đa 5 link cùng lúc. Vui lòng chờ!'); return; }
-    // Nếu là từ search video thì kiểm tra trùng
     if (videoId) {
       if (tasks.find(t => t.url.includes(videoId))) {
-        showWarnUnderVideo(videoId, "Video này đã có trong danh sách tải!");
+        showWarnUnderVideo(videoId, "Video này đã có trong danh sách tải!", '#ffaaaa');
         return;
       }
     }
@@ -477,7 +469,8 @@
       startTime: Date.now(),
       finishTime: null
     };
-    tasks.push(task); updateUI();
+    tasks.push(task);
+    updateUI();
     async function poll() {
       try {
         const res = await fetch('https://api.takeshi.dev/download', {
@@ -519,8 +512,6 @@
     }
     poll();
   }
-
-  // ==== Video search & render list ====
   async function searchVideo() {
     clearInputError();
     const urlInput = document.getElementById('url');
@@ -564,26 +555,24 @@
       searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không thể tìm kiếm lúc này.</li>`;
     }
   }
-  // Wrapper: Nếu là live, báo "Không thể tải video trực tiếp!"
-  // CODE MỚI
   function tryAddTask(url, videoId, isLive) {
     if (isLive) {
-      showWarnUnderVideo(videoId, "Không thể tải video trực tiếp!");
+      showWarnUnderVideo(videoId, "Không thể tải video trực tiếp!", '#ffaaaa');
       return;
     }
-    // Thêm dòng này để hiện thông báo
-    showWarnUnderVideo(videoId, "Đang bắt đầu tải xuống...", "#a2f2bd"); // Màu xanh lá cây nhạt
+    if (tasks.find(t => t.url.includes(videoId))) {
+      showWarnUnderVideo(videoId, "Video này đã có trong danh sách tải!", '#ffaaaa');
+      return;
+    }
+    showWarnUnderVideo(videoId, "Đang bắt đầu tải xuống...", '#a2f2bd');
     addTask(url, videoId);
   }
-  // Show cảnh báo ngay dưới video đã có trong danh sách tải
-  // CODE MỚI
-  function showWarnUnderVideo(videoId, msg = "Video này đã có trong danh sách tải!", color = '#ffaaaa') { // Thêm color
-    if (activeWarn[videoId])
-      return;
+  function showWarnUnderVideo(videoId, msg = "Video này đã có trong danh sách tải!", color = '#ffaaaa') {
+    if (activeWarn[videoId]) return;
     const warnDiv = document.getElementById('warn_' + videoId);
     if (warnDiv) {
       warnDiv.textContent = msg;
-      warnDiv.style.color = color; // Thêm dòng này
+      warnDiv.style.color = color;
       warnDiv.style.display = "block";
       activeWarn[videoId] = true;
       setTimeout(() => {
@@ -593,13 +582,9 @@
       }, 3000);
     }
   }
-
-  // Cho phép bấm Enter để tìm kiếm
   document.getElementById('url').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') searchVideo();
   });
-
-  // Anatili
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
