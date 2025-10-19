@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    container_name: ytmp3-api
+    ports:
+      - "3000:3000"   # API
+    environment:
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-http://your-vps-ip:3000}
+      - YTDLP_BIN=yt-dlp
+      - FFMPEG_BIN=ffmpeg
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
