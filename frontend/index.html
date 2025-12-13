@@ -431,7 +431,7 @@
   }
   function cancelTask(index) {
     const task = tasks[index];
-    fetch('https://api.takeshi.dev/cancel', {
+    fetch('/api/cancel', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ url: task.url })
@@ -473,7 +473,7 @@
     updateUI();
     async function poll() {
       try {
-        const res = await fetch('https://api.takeshi.dev/download', {
+        const res = await fetch('/api/download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
@@ -483,7 +483,7 @@
         if (data.duration) task.duration = data.duration;
         if (data.status === 'done') {
           task.status = 'done';
-          task.link = `https://api.takeshi.dev${data.downloadLink}`;
+          task.link = `/api${data.downloadLink}`; 
           task.progress = 100;
           task.finishTime = Date.now();
           updateUI();
@@ -525,8 +525,13 @@
     searchResultsTitle.style.display = 'block';
     searchResults.innerHTML = `<li style="color:#ffe082; padding:10px 0 8px 6px;">🔎 Đang tìm kiếm...</li>`;
     try {
-      const res = await fetch('https://api.takeshi.dev/search?q=' + encodeURIComponent(keyword));
+      const res = await fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: keyword })
+      });
       const list = await res.json();
+
       if (!list || !Array.isArray(list) || list.length === 0) {
         searchResults.innerHTML = `<li style="color:#fcafc8; padding:10px 0 8px 6px;">Không tìm thấy video nào.</li>`;
         return;
