@@ -97,26 +97,37 @@ async def search(req: Request):
         q = None
 
     if not q:
-        raise HTTPException(status_code=400, detail="Missing q")
+        return JSONResponse([])
 
     cmd = [
         YTDLP_BIN,
-        *yt_common_args(),
-        "-J",
+        "--extractor", "youtube",
+        "--skip-download",
         "--flat-playlist",
+        "--dump-single-json",
+        "--no-warnings",
+        "--geo-bypass",
+        "--geo-bypass-country", "VN",
+        "--user-agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         f"ytsearch10:{q}",
     ]
+
+    if YT_COOKIES and os.path.exists(YT_COOKIES):
+        cmd.insert(1, "--cookies")
+        cmd.insert(2, YT_COOKIES)
 
     try:
         proc = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=25
+            timeout=30
         )
 
         if proc.returncode != 0 or not proc.stdout:
-            raise Exception(proc.stderr.strip() or "yt-dlp search failed")
+            return JSONResponse([])
 
         data = json.loads(proc.stdout)
         entries = data.get("entries") or []
@@ -141,8 +152,7 @@ async def search(req: Request):
 
     except Exception as e:
         print("SEARCH ERROR:", e)
-        raise HTTPException(status_code=500, detail="Search failed")
-
+        return JSONResponse([])
 
 # ================= DOWNLOAD =================
 @app.post("/download")
