@@ -102,35 +102,47 @@ async def search(req: Request):
     cmd = [
         YTDLP_BIN,
         *yt_common_args(),
-        f"ytsearch10:{q}",
-        "--dump-json",
-        "--skip-download",
+        "-J",
         "--flat-playlist",
-        "--no-warnings",
+        f"ytsearch10:{q}",
     ]
 
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    if proc.returncode != 0:
-        raise HTTPException(status_code=500, detail="search failed")
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=25
+        )
 
-    results = []
-    for line in proc.stdout.splitlines():
-        it = json.loads(line)
-        vid = it.get("id")
-        if not vid:
-            continue
-        results.append({
-            "id": vid,
-            "title": it.get("title"),
-            "duration": it.get("duration") or 0,
-            "thumbnail": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
-            "channelTitle": it.get("uploader") or "",
-            "publishedAt": parse_upload_date(it.get("upload_date"))
-                or datetime.now(VN_TZ).isoformat(),
-            "isLive": bool(it.get("is_live")),
-        })
+        if proc.returncode != 0 or not proc.stdout:
+            raise Exception(proc.stderr.strip() or "yt-dlp search failed")
 
-    return JSONResponse(results[:10])
+        data = json.loads(proc.stdout)
+        entries = data.get("entries") or []
+
+        results = []
+        for it in entries:
+            vid = it.get("id")
+            if not vid:
+                continue
+
+            results.append({
+                "id": vid,
+                "title": it.get("title") or "Video",
+                "duration": it.get("duration") or 0,
+                "thumbnail": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
+                "channelTitle": it.get("uploader") or "",
+                "publishedAt": datetime.now(VN_TZ).isoformat(),
+                "isLive": bool(it.get("is_live")),
+            })
+
+        return JSONResponse(results)
+
+    except Exception as e:
+        print("SEARCH ERROR:", e)
+        raise HTTPException(status_code=500, detail="Search failed")
+
 
 # ================= DOWNLOAD =================
 @app.post("/download")
