@@ -1,7 +1,17 @@
-web:
-  build: ./frontend
-  container_name: ytmp3-web
-  ports:
-    - "127.0.0.1:8088:80"
-  depends_on:
-    - api
+services:
+  api:
+    build: .
+    container_name: ytmp3-api
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    expose:
+      - "3000"
+
+  web:
+    build: ./frontend
+    container_name: ytmp3-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
