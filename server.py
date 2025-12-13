@@ -66,11 +66,22 @@ def parse_upload_date(upload_date: str | None) -> str | None:
         return dt.isoformat()
     except Exception:
         return None
+    
+def get_writable_cookies_path() -> str | None:
+    if not YT_COOKIES or not os.path.exists(YT_COOKIES):
+        return None
+    tmp_cookie = TMP_DIR / "cookies_writable.txt"
+    try:
+        shutil.copyfile(YT_COOKIES, tmp_cookie)
+        return str(tmp_cookie)
+    except Exception:
+        return None
 
 def yt_base_cmd():
-    cmd = [YTDLP_BIN, "--no-write-info-json", "--no-write-thumbnail"]
-    if YT_COOKIES and os.path.exists(YT_COOKIES):
-        cmd += ["--cookies", YT_COOKIES, "--no-write-cookies"]
+    cmd = [YTDLP_BIN]
+    ck = get_writable_cookies_path()
+    if ck:
+        cmd += ["--cookies", ck]
     return cmd
 
 # ====== SEARCH (GIỐNG CODE CŨ – CHỈ BỎ JSON RÁC) ======
