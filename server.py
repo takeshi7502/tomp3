@@ -88,6 +88,29 @@ def parse_upload_date(upload_date: str | None):
         return None
 
 # ================= SEARCH =================
+import requests
+
+INVIDIOUS_LIST = [
+    "https://invidious.fdn.fr",
+    "https://vid.puffyan.us",
+    "https://invidious.lunar.icu",
+    "https://invidious.slipfox.xyz",
+]
+
+def search_invidious(q: str):
+    for base in INVIDIOUS_LIST:
+        try:
+            r = requests.get(
+                f"{base}/api/v1/search",
+                params={"q": q, "type": "video"},
+                timeout=8
+            )
+            if r.status_code == 200:
+                return r.json()
+        except Exception:
+            continue
+    return []
+
 @app.post("/search")
 async def search(req: Request):
     try:
@@ -99,60 +122,25 @@ async def search(req: Request):
     if not q:
         return JSONResponse([])
 
-    cmd = [
-        YTDLP_BIN,
-        "--extractor", "youtube",
-        "--skip-download",
-        "--flat-playlist",
-        "--dump-single-json",
-        "--no-warnings",
-        "--geo-bypass",
-        "--geo-bypass-country", "VN",
-        "--user-agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        f"ytsearch10:{q}",
-    ]
-
-    if YT_COOKIES and os.path.exists(YT_COOKIES):
-        cmd.insert(1, "--cookies")
-        cmd.insert(2, YT_COOKIES)
-
-    try:
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-
-        if proc.returncode != 0 or not proc.stdout:
-            return JSONResponse([])
-
-        data = json.loads(proc.stdout)
-        entries = data.get("entries") or []
-
-        results = []
-        for it in entries:
-            vid = it.get("id")
-            if not vid:
-                continue
-
-            results.append({
-                "id": vid,
-                "title": it.get("title") or "Video",
-                "duration": it.get("duration") or 0,
-                "thumbnail": f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg",
-                "channelTitle": it.get("uploader") or "",
-                "publishedAt": datetime.now(VN_TZ).isoformat(),
-                "isLive": bool(it.get("is_live")),
-            })
-
-        return JSONResponse(results)
-
-    except Exception as e:
-        print("SEARCH ERROR:", e)
+    data = search_invidious(q)
+    if not data:
         return JSONResponse([])
+
+    results = []
+    now = datetime.now(VN_TZ).isoformat()
+
+    for it in data[:10]:
+        results.append({
+            "id": it.get("videoId"),
+            "title": it.get("title"),
+            "duration": it.get("lengthSeconds") or 0,
+            "thumbnail": it.get("videoThumbnails", [{}])[-1].get("url"),
+            "channelTitle": it.get("author"),
+            "publishedAt": now,
+            "isLive": it.get("liveNow", False),
+        })
+
+    return JSONResponse(results)
 
 # ================= DOWNLOAD =================
 @app.post("/download")
