@@ -3,14 +3,20 @@ services:
     build: .
     container_name: ytmp3-api
     env_file: .env
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - YT_COOKIES=/app/cookies.txt
     volumes:
       - ./data:/app/data
+      - ./cookies.txt:/app/cookies.txt:ro
     expose:
       - "3000"
 
   web:
     build: ./frontend
     container_name: ytmp3-web
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
     ports:
       - "8080:80"
     depends_on:

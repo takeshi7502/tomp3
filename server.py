@@ -14,6 +14,16 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
+import os
+
+YT_COOKIES = os.getenv("YT_COOKIES")
+
+def yt_common_args():
+    if YT_COOKIES and os.path.exists(YT_COOKIES):
+        return ["--cookies", YT_COOKIES]
+    return []
+
+
 # ====== Config ======
 BASE_DIR = Path(__file__).parent.resolve()
 DATA_DIR = BASE_DIR / "data"
@@ -88,13 +98,13 @@ async def search(req: Request):
     # dùng yt-dlp để search: lấy JSON
     # limit 15 rồi trả về 10 item đầu cho khớp UI
     cmd = [
-        YTDLP_BIN,
-        f"ytsearch15:{q}",
-        "--dump-json",
-        "--skip-download",
-        "--no-warnings",
+        "yt-dlp",
+        *yt_common_args(),
         "--flat-playlist",
+        "-J",
+        f"ytsearch10:{query}"
     ]
+
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
         lines = [json.loads(l) for l in proc.stdout.splitlines() if l.strip()]
@@ -177,13 +187,12 @@ def _worker_download(task: Task):
         safe = safe_filename(task.title)
         out_tpl = str((TMP_DIR / f"{safe}.%(ext)s").as_posix())
         cmd = [
-            YTDLP_BIN, task.url,
-            "-x", "--audio-format", "mp3",
-            "--audio-quality", "0",
-            "--ffmpeg-location", FFMPEG_BIN,
-            "-o", out_tpl,
-            "--no-playlist",
-            "--no-warnings",
+            "yt-dlp",
+            *yt_common_args(),
+            "-x",
+            "--audio-format", "mp3",
+            "-o", output_path,
+            url
         ]
         task.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = task.proc.communicate()
