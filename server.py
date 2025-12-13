@@ -18,11 +18,10 @@ import os
 
 YT_COOKIES = os.getenv("YT_COOKIES")
 
-def yt_common_args():
+def yt_cookies_args():
     if YT_COOKIES and os.path.exists(YT_COOKIES):
         return ["--cookies", YT_COOKIES]
     return []
-
 
 # ====== Config ======
 BASE_DIR = Path(__file__).parent.resolve()
@@ -98,11 +97,13 @@ async def search(req: Request):
     # dùng yt-dlp để search: lấy JSON
     # limit 15 rồi trả về 10 item đầu cho khớp UI
     cmd = [
-        "yt-dlp",
-        *yt_common_args(),
+        YTDLP_BIN,
+        *yt_cookies_args(),
+        f"ytsearch15:{q}",
+        "--dump-json",
+        "--skip-download",
+        "--no-warnings",
         "--flat-playlist",
-        "-J",
-        f"ytsearch10:{query}"
     ]
 
     try:
@@ -187,13 +188,17 @@ def _worker_download(task: Task):
         safe = safe_filename(task.title)
         out_tpl = str((TMP_DIR / f"{safe}.%(ext)s").as_posix())
         cmd = [
-            "yt-dlp",
-            *yt_common_args(),
-            "-x",
-            "--audio-format", "mp3",
-            "-o", output_path,
-            url
+            YTDLP_BIN,
+            *yt_cookies_args(),
+            task.url,
+            "-x", "--audio-format", "mp3",
+            "--audio-quality", "0",
+            "--ffmpeg-location", FFMPEG_BIN,
+            "-o", out_tpl,
+            "--no-playlist",
+            "--no-warnings",
         ]
+
         task.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = task.proc.communicate()
         if task.proc.returncode != 0:
