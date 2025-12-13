@@ -68,9 +68,9 @@ def parse_upload_date(upload_date: str | None) -> str | None:
         return None
 
 def yt_base_cmd():
-    cmd = [YTDLP_BIN]
+    cmd = [YTDLP_BIN, "--no-write-info-json", "--no-write-thumbnail"]
     if YT_COOKIES and os.path.exists(YT_COOKIES):
-        cmd += ["--cookies", YT_COOKIES]
+        cmd += ["--cookies", YT_COOKIES, "--no-write-cookies"]
     return cmd
 
 # ====== SEARCH (GIỐNG CODE CŨ – CHỈ BỎ JSON RÁC) ======
